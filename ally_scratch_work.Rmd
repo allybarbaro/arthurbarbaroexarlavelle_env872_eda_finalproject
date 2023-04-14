@@ -17,6 +17,13 @@ getwd()
 ## R Markdown
 ```{r load data, echo=TRUE}
 
+education.tract.level <- read.csv(here("Data/Raw/ACS2021_education_attainment_tract.csv"), stringsAsFactors = TRUE)
+
+income.tract.level <- read.csv(here("Data/Raw/ACS2021_incomeinpast12mo_5yrestimate_tract.csv"), stringsAsFactors = TRUE)
+
+language.tract.level <- read.csv(here("Data/Raw/ACS2021_language_spoken_tract.csv"), stringsAsFactors = TRUE)
+
+demographics.tract.level <- read.csv(here("Data/Raw/ACS2021_race_age_sex_tract.csv"), stringsAsFactors = TRUE)
 
 ```
 
