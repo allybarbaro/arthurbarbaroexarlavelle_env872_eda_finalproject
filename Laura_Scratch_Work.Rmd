@@ -1,0 +1,52 @@
+---
+title: "Laura_Scratch_Work"
+output: html_document
+date: "2023-04-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Loaded packages
+library(tidyverse);library(rvest); library(ggplot2); library(lubridate); library(here)
+
+#Checked working directory
+getwd()
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r Wrangled the data}
+#Read in all hazard data for all of NC
+NC_Hazard <- read.csv(file = here("Data/Raw/NRI_Table_CensusTracts_NorthCarolina.csv"), stringsAsFactors = TRUE)
+
+#Filtered data for coastal flooding in Carteret County
+Carteret_Flooding <- NC_Hazard %>%
+  filter(COUNTY == "Carteret") %>%
+  select(TRACT, POPULATION, CFLD_EXPPE, CFLD_EXPT, CFLD_RISKV, CFLD_RISKS, CFLD_RISKR)
+
+#Filtered data for hurricanes in Carteret County
+Carteret_Hurricanes <- NC_Hazard %>%
+  filter(COUNTY == "Carteret") %>%
+  select(TRACT, POPULATION, HRCN_EXPP, HRCN_EXPT, HRCN_RISKV, HRCN_RISKS, HRCN_RISKR)
+
+#Saved processed datasets
+write.csv(Carteret_Flooding, row.names = FALSE, file = "./Data/Processed/Carteret_Flooding_Processed.csv")
+    
+write.csv(Carteret_Flooding, row.names = FALSE, file = "./Data/Processed/Carteret_Hurricanes_Processed.csv")
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
