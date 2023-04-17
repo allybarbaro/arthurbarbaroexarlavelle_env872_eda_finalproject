@@ -10,25 +10,70 @@ library(tidyverse)
 library(dplyr)
 library(lubridate)
 library(here)
+library(tidycensus)
+library(sf)
+
+census_api_key("76ed5ebd001e4ba14ba63363f8adecda35d2847b")
 
 getwd()
 ```
 
 ## R Markdown
-```{r load data, echo=TRUE}
+```{r attempt at tidy census, echo=TRUE}
 
-education.tract.level <- read.csv(here("Data/Raw/ACS2021_education_attainment_tract.csv"), stringsAsFactors = TRUE)
+variables <- load_variables(2020, "pl", cache = TRUE)
+view(variables)
 
-income.tract.level <- read.csv(here("Data/Raw/ACS2021_incomeinpast12mo_5yrestimate_tract.csv"), stringsAsFactors = TRUE)
+carteret.shape <- get_decennial(state = "NC", 
+                                county = "Carteret",
+                                geography = "tract",
+                                geometry = TRUE,
+                                variables = "P1_009N",
+                                year = 2020)
 
-language.tract.level <- read.csv(here("Data/Raw/ACS2021_language_spoken_tract.csv"), stringsAsFactors = TRUE)
+carteret.shape <- carteret.shape %>%
+  select(GEOID, geometry) %>%
+  mutate(TRACT = c("970503", "970601", "970401",
+                                    "970101", "970102", "970603",
+                                    "970402", "970703", "9702", 
+                                    "970403", "970704", "970806",
+                                    "970502", "970804", "970903",
+                                    "970805", "970304", "970602",
+                                    "970103", "970702", "970904", 
+                                    "971003", "970606", "970301",
+                                    "970701", "970504", "970501", "970801", 
+                                    "970305", "971103", "9801", "9901", "9902"))
+  
+map1 <- ggplot(carteret.shape) +
+  geom_sf()
+print(map1)
+  
+carteret.race <- get_decennial(geography = "tract",
+                    variables = c(pop.white = "P1_003N", pop.black = "P1_004N",
+                                  pop.amerin.alaska = "P1_005N",
+                                  pop.asian = "P1_006N",
+                                  pop.hawaiianaapi = "P1_007N",
+                                  pop.other = "P1_008N",
+                                  pop.twoormore = "P1_009N"),
+                    state = "NC",
+                    county = "Carteret",
+                    year = 2020)
 
-demographics.tract.level <- read.csv(here("Data/Raw/ACS2021_race_age_sex_tract.csv"), stringsAsFactors = TRUE)
+carteret.income.pov <-get_acs(geography = "tract",
+                    variables = c(medincome = "B19013_001"),
+                    state = "NC",
+                    county = "Carteret",
+                    year = 2020)
+
+write_csv(carteret.shape, file =
+            "./Data/Processed/Carteret_shape_Processed.csv")
+
 
 ```
 
-```{r wrangle data, echo=TRUE}
+```{r attempt at wrangling census csvs}
 
+carteret.education <-read_csv()
 
 ```
 
