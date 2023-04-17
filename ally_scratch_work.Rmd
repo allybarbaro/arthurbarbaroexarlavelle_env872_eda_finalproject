@@ -28,7 +28,7 @@ carteret.shape <- get_decennial(state = "NC",
                                 county = "Carteret",
                                 geography = "tract",
                                 geometry = TRUE,
-                                variables = "P1_009N",
+                                variables = "P1_003N",
                                 year = 2020)
 
 carteret.shape <- carteret.shape %>%
@@ -43,6 +43,8 @@ carteret.shape <- carteret.shape %>%
                                     "971003", "970606", "970301",
                                     "970701", "970504", "970501", "970801", 
                                     "970305", "971103", "9801", "9901", "9902"))
+  
+  
   
 map1 <- ggplot(carteret.shape) +
   geom_sf()
@@ -68,12 +70,12 @@ carteret.income.pov <-get_acs(geography = "tract",
 write_csv(carteret.shape, file =
             "./Data/Processed/Carteret_shape_Processed.csv")
 
-
 ```
 
 ```{r attempt at wrangling census csvs}
 
-carteret.education <-read_csv()
+carteret.education <-read_csv("Data/Raw/ACS2021_education_attainment_tract.csv")
+
 
 ```
 
