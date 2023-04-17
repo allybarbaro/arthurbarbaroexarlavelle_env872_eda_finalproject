@@ -8,7 +8,7 @@ date: "2023-04-14"
 knitr::opts_chunk$set(echo = TRUE)
 
 #Loaded packages
-library(tidyverse);library(rvest); library(ggplot2); library(lubridate); library(here)
+library(tidyverse);library(rvest); library(ggplot2); library(lubridate); library(here); library(sf)
 
 #Checked working directory
 getwd()
@@ -27,7 +27,7 @@ NC_Hazard <- read.csv(file = here("Data/Raw/NRI_Table_CensusTracts_NorthCarolina
 #Filtered data for coastal flooding in Carteret County
 Carteret_Flooding <- NC_Hazard %>%
   filter(COUNTY == "Carteret") %>%
-  select(TRACT, POPULATION, CFLD_EXPPE, CFLD_EXPT, CFLD_RISKV, CFLD_RISKS, CFLD_RISKR)
+  select(TRACT, POPULATION, CFLD_EXPP, CFLD_EXPT, CFLD_RISKV, CFLD_RISKS, CFLD_RISKR)
 
 #Filtered data for hurricanes in Carteret County
 Carteret_Hurricanes <- NC_Hazard %>%
@@ -37,9 +37,20 @@ Carteret_Hurricanes <- NC_Hazard %>%
 #Saved processed datasets
 write.csv(Carteret_Flooding, row.names = FALSE, file = "./Data/Processed/Carteret_Flooding_Processed.csv")
     
-write.csv(Carteret_Flooding, row.names = FALSE, file = "./Data/Processed/Carteret_Hurricanes_Processed.csv")
+write.csv(Carteret_Hurricanes, row.names = FALSE, file = "./Data/Processed/Carteret_Hurricanes_Processed.csv")
 
 ```
+
+```{r}
+Carteret_sf <- st_read("Data/Processed/")
+
+Flooding_sf <- leftjoin(Carteret_sf, Carteret_Flooding, by = "TRACT")
+
+Hurricanes_sf <- leftjoin(Carteret_sf, Carteret_Hurricanes, by = "TRACT")
+
+```
+
+
 
 ## Including Plots
 
