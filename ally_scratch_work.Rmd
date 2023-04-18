@@ -74,8 +74,28 @@ write_csv(carteret.shape, file =
 
 ```{r attempt at wrangling census csvs}
 
-carteret.education <-read_csv("Data/Raw/ACS2021_education_attainment_tract.csv")
+carteret.education <-read_csv(here("Data/Raw/ACS2021_education_attainment_tract.csv"))
 
+carteret.demo <-read_csv(here("Data/Raw/ACSDP5Y2021.DP05-2023-04-18T005043.csv"))
+
+carteret.age.sex <- carteret.demo %>%
+  select(1,4,5,7,18,19,20)
+
+write_csv(carteret.age.sex, file = "Data/Processed/Carteret.age.sex.csv")
+
+carteret.race <- carteret.demo %>%
+  select(1, 40, 41, 42, 43, 46, 47, 48, 49, 50) %>%
+  filter(!row_number() %in% c(1, 2, 3))
+
+write_csv(carteret.race, file = "Data/Processed/Carteret.race.csv")
+
+carteret.poverty <- read_csv(here("Data/Raw/ACSST5Y2021.poverty.csv"))
+
+carteret.poverty <- carteret.poverty %>%
+  select(1, 2, 4, 8, 12) %>%
+  filter(!row_number() %in% c(1, 2, 3))
+
+write_csv(carteret.poverty, file = "Data/Processed/Carteret.poverty.csv")
 
 ```
 
