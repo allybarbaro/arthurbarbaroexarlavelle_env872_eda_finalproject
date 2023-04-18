@@ -42,7 +42,9 @@ write.csv(Carteret_Hurricanes, row.names = FALSE, file = "./Data/Processed/Carte
 ```
 
 ```{r}
-Carteret_sf <- st_read("Data/Processed/")
+Carteret_sf <- st_read("Data/Processed/Carteret_shape_Processed.csv")
+
+st_as_sf(Carteret_sf)
 
 Flooding_sf <- leftjoin(Carteret_sf, Carteret_Flooding, by = "TRACT")
 
