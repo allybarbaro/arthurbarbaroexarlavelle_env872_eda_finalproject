@@ -27,12 +27,12 @@ NC_Hazard <- read.csv(file = here("Data/Raw/NRI_Table_CensusTracts_NorthCarolina
 #Filtered data for coastal flooding in Carteret County
 Carteret_Flooding <- NC_Hazard %>%
   filter(COUNTY == "Carteret") %>%
-  select(TRACT, POPULATION, CFLD_EXPP, CFLD_EXPT, CFLD_RISKV, CFLD_RISKS, CFLD_RISKR)
+  select(TRACT, POPULATION, CFLD_AFREQ)
 
 #Filtered data for hurricanes in Carteret County
 Carteret_Hurricanes <- NC_Hazard %>%
   filter(COUNTY == "Carteret") %>%
-  select(TRACT, POPULATION, HRCN_EXPP, HRCN_EXPT, HRCN_RISKV, HRCN_RISKS, HRCN_RISKR)
+  select(TRACT, POPULATION, HRCN_AFREQ)
 
 #Saved processed datasets
 write.csv(Carteret_Flooding, row.names = FALSE, file = "./Data/Processed/Carteret_Flooding_Processed.csv")
@@ -42,13 +42,7 @@ write.csv(Carteret_Hurricanes, row.names = FALSE, file = "./Data/Processed/Carte
 ```
 
 ```{r}
-Carteret_sf <- st_read("Data/Processed/Carteret_shape_Processed.csv")
 
-st_as_sf(Carteret_sf)
-
-Flooding_sf <- leftjoin(Carteret_sf, Carteret_Flooding, by = "TRACT")
-
-Hurricanes_sf <- leftjoin(Carteret_sf, Carteret_Hurricanes, by = "TRACT")
 
 ```
 
