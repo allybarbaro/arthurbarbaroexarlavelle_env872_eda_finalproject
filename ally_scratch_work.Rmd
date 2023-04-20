@@ -60,6 +60,8 @@ print(map2)
 
 #writeOGR to save shapefiles ? 
 
+writeOGR(carteret.shape, file = "./Data/Processed/carteretbytract.shp")
+
 write_csv(carteret.shape, file = 
             "./Data/Processed/Carteret_county_bytract.csv")
 write_csv(full.state.shape, file = 
