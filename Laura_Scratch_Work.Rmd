@@ -43,6 +43,17 @@ write.csv(Carteret_Hurricanes, row.names = FALSE, file = "./Data/Processed/Carte
 
 ```{r}
 
+#Bar graph of racial composition of each census tract (later to highlight carteret county)
+
+
+
+#Bar graph of annualized frequency of coastal flooding of each census
+
+
+
+#Bar graph of annualized frequency of hurricanes of each census tract
+
+
 
 ```
 
