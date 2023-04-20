@@ -13,6 +13,8 @@ library(here)
 library(tidycensus)
 library(sf)
 library(rgdal)
+library(mapview)
+library(leaflet)
 
 census_api_key("76ed5ebd001e4ba14ba63363f8adecda35d2847b")
 
@@ -75,6 +77,19 @@ carteret.sf <- carteret.tracts %>%
 ggplot(data = carteret.sf) +
   geom_sf()
 
+mapview(carteret.sf)
+
+please_work <- st_read('./Data/Raw/carteret_tracts.shp')
+mapview(please_work)
+
+st_write(please_work, "./Data/Processed/carteret_tracts.shp")
+
+carteret_shape_correct <- st_read('./Data/Processed/carteret_tracts.shp')
+
+mapview(carteret_shape_correct)
+
+ggplot(data = carteret_shape_correct) +
+  geom_sf()
 ```
 
 ```{r attempt at wrangling census csvs}
