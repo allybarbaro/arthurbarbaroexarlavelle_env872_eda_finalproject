@@ -12,6 +12,7 @@ library(lubridate)
 library(here)
 library(tidycensus)
 library(sf)
+library(rgdal)
 
 census_api_key("76ed5ebd001e4ba14ba63363f8adecda35d2847b")
 
@@ -21,9 +22,6 @@ getwd()
 ## R Markdown
 ```{r attempt at tidy census, echo=TRUE}
 
-variables <- load_variables(2020, "pl", cache = TRUE)
-view(variables)
-
 carteret.shape <- get_decennial(state = "NC", 
                                 county = "Carteret",
                                 geography = "tract",
@@ -31,61 +29,58 @@ carteret.shape <- get_decennial(state = "NC",
                                 variables = "P1_003N",
                                 year = 2020)
 
-carteret.shape <- carteret.shape %>%
-  select(GEOID, geometry) %>%
-  mutate(TRACT = c("970503", "970601", "970401",
-                                    "970101", "970102", "970603",
-                                    "970402", "970703", "9702", 
-                                    "970403", "970704", "970806",
-                                    "970502", "970804", "970903",
-                                    "970805", "970304", "970602",
-                                    "970103", "970702", "970904", 
-                                    "971003", "970606", "970301",
-                                    "970701", "970504", "970501", "970801", 
-                                    "970305", "971103", "9801", "9901", "9902"))
+full.state.shape <- get_decennial(state = "NC", 
+                                geography = "county",
+                                geometry = TRUE,
+                                variables = "P1_003N",
+                                year = 2020)
+
+#carteret.shape <- carteret.shape %>%
+  #select(GEOID, geometry) %>%
+  #mutate(TRACT = c("970503", "970601", "970401",
+                                    #"970101", "970102", "970603",
+                                    #"970402", "970703", "9702", 
+                                    #"970403", "970704", "970806",
+                                    #"970502", "970804", "970903",
+                                    #"970805", "970304", "970602",
+                                    #"970103", "970702", "970904", 
+                                    #"971003", "970606", "970301",
+                                    #"970701", "970504", "970501", "970801", 
+                                    #"970305", "971103", "9801", "9901", "9902"))
   
   
   
 map1 <- ggplot(carteret.shape) +
   geom_sf()
 print(map1)
-  
-carteret.race <- get_decennial(geography = "tract",
-                    variables = c(pop.white = "P1_003N", pop.black = "P1_004N",
-                                  pop.amerin.alaska = "P1_005N",
-                                  pop.asian = "P1_006N",
-                                  pop.hawaiianaapi = "P1_007N",
-                                  pop.other = "P1_008N",
-                                  pop.twoormore = "P1_009N"),
-                    state = "NC",
-                    county = "Carteret",
-                    year = 2020)
 
-carteret.income.pov <-get_acs(geography = "tract",
-                    variables = c(medincome = "B19013_001"),
-                    state = "NC",
-                    county = "Carteret",
-                    year = 2020)
+map2 <-ggplot(full.state.shape) +
+  geom_sf()
+print(map2)
 
-write_csv(carteret.shape, file =
-            "./Data/Processed/Carteret_shape_Processed.csv")
+#writeOGR to save shapefiles ? 
+
+write_csv(carteret.shape, file = 
+            "./Data/Processed/Carteret_county_bytract.csv")
+write_csv(full.state.shape, file = 
+            "./Data/Processed/NC_by_county.csv")
+
 
 ```
 
 ```{r attempt at wrangling census csvs}
 
-carteret.education <-read_csv(here("Data/Raw/ACS2021_education_attainment_tract.csv"))
-
-carteret.demo <-read_csv(here("Data/Raw/ACSDP5Y2021.DP05-2023-04-18T005043.csv"))
+carteret.demo <-read_csv(here("Data/Raw/ACSDP5Y2021.DP05-race-age-sex.csv"))
 
 carteret.age.sex <- carteret.demo %>%
-  select(1,4,5,7,18,19,20)
+  select(1,4,5,7,18,19,20) %>%
+  filter(!row_number() %in% c(1, 2))
 
 write_csv(carteret.age.sex, file = "Data/Processed/Carteret.age.sex.csv")
 
 carteret.race <- carteret.demo %>%
   select(1, 40, 41, 42, 43, 46, 47, 48, 49, 50) %>%
-  filter(!row_number() %in% c(1, 2, 3))
+  filter(!row_number() %in% c(1, 2))
 
 write_csv(carteret.race, file = "Data/Processed/Carteret.race.csv")
 
@@ -96,6 +91,14 @@ carteret.poverty <- carteret.poverty %>%
   filter(!row_number() %in% c(1, 2, 3))
 
 write_csv(carteret.poverty, file = "Data/Processed/Carteret.poverty.csv")
+
+education <- read_csv(here("Data/Raw/ACSST5Y2021.S1501-2023-04-20T120427.csv"))
+
+education <- education %>%
+  filter(!row_number() %in% c(1:12))
+
+write_csv(education, file = 
+            "./Data/Raw/ACS_education.csv")
 
 ```
 
