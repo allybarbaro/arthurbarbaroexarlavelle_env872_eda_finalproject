@@ -46,7 +46,7 @@ full.state.shape <- get_decennial(state = "NC",
                                     #"970103", "970702", "970904", 
                                     #"971003", "970606", "970301",
                                     #"970701", "970504", "970501", "970801", 
-                                    #"970305", "971103", "9801", "9901", "9902"))
+                                    #"970305", "971103"))
   
   
   
@@ -67,6 +67,13 @@ write_csv(carteret.shape, file =
 write_csv(full.state.shape, file = 
             "./Data/Processed/NC_by_county.csv")
 
+carteret.tracts <-read_csv(here("./Data/Raw/carteret_tracts_.csv"))
+
+carteret.sf <- carteret.tracts %>%
+  st_as_sf(coords = c("INTPTLON", "INTPTLAT"), 
+           crs = 4269)
+ggplot(data = carteret.sf) +
+  geom_sf()
 
 ```
 
