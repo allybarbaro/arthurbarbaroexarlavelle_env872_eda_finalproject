@@ -1,4 +1,4 @@
-Label (Grouping),Population for whom poverty status is determined,        Under 18 years,        18 to 64 years,        65 years and over
+Census Tract,Population for Whom Poverty Status is Determined,Under 18 years,18 to 64 years,65 years and over
 "Census Tract 9701.01, Carteret County, North Carolina!!Total!!Estimate",845,173,416,256
 "Census Tract 9701.01, Carteret County, North Carolina!!Below poverty level!!Estimate",79,20,50,9
 "Census Tract 9701.01, Carteret County, North Carolina!!Percent below poverty level!!Estimate",9.30%,11.60%,12.00%,3.50%
@@ -89,12 +89,3 @@ Label (Grouping),Population for whom poverty status is determined,       
 "Census Tract 9711.03, Carteret County, North Carolina!!Total!!Estimate","1,685",214,761,710
 "Census Tract 9711.03, Carteret County, North Carolina!!Below poverty level!!Estimate",156,36,87,33
 "Census Tract 9711.03, Carteret County, North Carolina!!Percent below poverty level!!Estimate",9.30%,16.80%,11.40%,4.60%
-"Census Tract 9801, Carteret County, North Carolina!!Total!!Estimate",0,0,0,0
-"Census Tract 9801, Carteret County, North Carolina!!Below poverty level!!Estimate",0,0,0,0
-"Census Tract 9801, Carteret County, North Carolina!!Percent below poverty level!!Estimate",-,-,-,-
-"Census Tract 9901, Carteret County, North Carolina!!Total!!Estimate",0,0,0,0
-"Census Tract 9901, Carteret County, North Carolina!!Below poverty level!!Estimate",0,0,0,0
-"Census Tract 9901, Carteret County, North Carolina!!Percent below poverty level!!Estimate",-,-,-,-
-"Census Tract 9902, Carteret County, North Carolina!!Total!!Estimate",0,0,0,0
-"Census Tract 9902, Carteret County, North Carolina!!Below poverty level!!Estimate",0,0,0,0
-"Census Tract 9902, Carteret County, North Carolina!!Percent below poverty level!!Estimate",-,-,-,-
