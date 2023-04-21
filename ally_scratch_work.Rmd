@@ -122,6 +122,13 @@ carteret.age.sex <- carteret.age.sex %>%
                             "970904", "970904", "971003", "971003", "971103",
                             "971103"))
 
+data.type <- list("Estimate", "Percent")
+rep.data.type <- rep(data.type, times = 30)
+
+carteret.age.sex <- carteret.age.sex %>%
+  mutate("Data Type" = c(rep.data.type)) %>%
+  select("Data Type", everything())
+
 
 write_csv(carteret.age.sex, file = "Data/Processed/Carteret.age.sex.csv")
 
@@ -148,6 +155,10 @@ carteret.race <- carteret.race %>%
                             "970805", "970806", "970806", "970903", "970903",
                             "970904", "970904", "971003", "971003", "971103",
                             "971103"))
+
+carteret.race <- carteret.race %>%
+mutate("Data Type" = c(rep.data.type)) %>%
+  select("Data Type", everything())
 
 write_csv(carteret.race, file = "Data/Processed/Carteret.race.csv")
 
@@ -187,6 +198,13 @@ carteret.poverty <- carteret.poverty %>%
                             "970904", "970904", "971003", "971003", "971003",
                             "971103", "971103", "971103"))
 
+pov.list <-list("Total Estimate", "Below Poverty Level", "Percent Below Poverty Level")
+rep.pov.list <- rep(pov.list, times = 30)
+
+carteret.poverty <- carteret.poverty %>%
+mutate("Data Type" = c(rep.pov.list)) %>%
+  select("Data Type", everything())
+
 write_csv(carteret.poverty, file = "Data/Processed/Carteret.poverty.csv")
 
 carteret.employment <- read_csv(here("Data/Raw/ACSST5Y2021.poverty.csv"))
@@ -222,6 +240,10 @@ carteret.employment <- carteret.employment %>%
                             "970904", "970904", "971003", "971003", "971003",
                             "971103", "971103", "971103"))
 
+carteret.employment <- carteret.employment %>%
+mutate("Data Type" = c(rep.pov.list)) %>%
+  select("Data Type", everything())
+
 write_csv(carteret.employment, file = 
             "./Data/Processed/Carteret.Employment.csv")
 
@@ -255,6 +277,10 @@ carteret.education <- carteret.education %>%
                             "970903", "970903", "970904",
                             "970904", "970904", "971003", "971003", "971003",
                             "971103", "971103", "971103"))
+
+carteret.education <- carteret.education %>%
+mutate("Data Type" = c(rep.pov.list)) %>%
+  select("Data Type", everything())
 
 write_csv(carteret.education, file = 
             "./Data/Processed/carteret.education.csv")
