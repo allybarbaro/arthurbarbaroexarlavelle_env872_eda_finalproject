@@ -27,7 +27,7 @@ NC_Hazard <- read.csv(file = here("Data/Raw/NRI_Table_CensusTracts_NorthCarolina
 #Filtered data for coastal flooding in Carteret County
 Carteret_Flooding <- NC_Hazard %>%
   filter(COUNTY == "Carteret") %>%
-  select(TRACT, POPULATION, CFLD_AFREQ)
+  select(TRACT, CFLD_AFREQ)
 
 #Filtered data for hurricanes in Carteret County
 Carteret_Hurricanes <- NC_Hazard %>%
@@ -44,12 +44,25 @@ write.csv(Carteret_Hurricanes, row.names = FALSE, file = "./Data/Processed/Carte
 ```{r}
 
 #Bar graph of racial composition of each census tract (later to highlight carteret county)
+Carteret_Race <- read.csv(file = here("Data/Processed/Carteret.race.csv"), stringsAsFactors = TRUE)
 
+Race_Plot <- ggplot(Carteret_Race, aes(x = Tract, y= Race)) + 
+  geom_bar() + 
+  labs(title="Racial Composition of Each Census Tract", x="Tract", y="Race")
 
+#Bar graph of annualized frequency of coastal flooding of each census tract
+Carteret_Flooding$TRACT <- as.factor(Carteret_Flooding$TRACT)
 
-#Bar graph of annualized frequency of coastal flooding of each census
+Flooding_Plot <- ggplot(Carteret_Flooding, aes(x = TRACT, y = CFLD_AFREQ)) +
+  geom_col() + 
+  labs(title="Annualized Frequency of Coastal Flooding by Census Tract", x="Census Tract", y="Annualized Frequency of Coastal Flooding") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  ylim(0,4)
 
+ggplot(Carteret_Flooding, aes(x = TRACT, y = CFLD_AFREQ)) +
+  geom_col()
 
+print(Flooding_Plot)
 
 #Bar graph of annualized frequency of hurricanes of each census tract
 
