@@ -32,7 +32,7 @@ Carteret_Flooding <- NC_Hazard %>%
 #Filtered data for hurricanes in Carteret County
 Carteret_Hurricanes <- NC_Hazard %>%
   filter(COUNTY == "Carteret") %>%
-  select(TRACT, POPULATION, HRCN_AFREQ)
+  select(TRACT, HRCN_AFREQ)
 
 #Saved processed datasets
 write.csv(Carteret_Flooding, row.names = FALSE, file = "./Data/Processed/Carteret_Flooding_Processed.csv")
@@ -41,14 +41,21 @@ write.csv(Carteret_Hurricanes, row.names = FALSE, file = "./Data/Processed/Carte
 
 ```
 
-```{r}
+```{r warning=FALSE}
 
 #Bar graph of racial composition of each census tract (later to highlight carteret county)
-Carteret_Race <- read.csv(file = here("Data/Processed/Carteret.race.csv"), stringsAsFactors = TRUE)
+Carteret_race <- read.csv(file = here("Data/Processed/Carteret.race.csv"), stringsAsFactors = TRUE)
 
-Race_Plot <- ggplot(Carteret_Race, aes(x = Tract, y= Race)) + 
-  geom_bar() + 
-  labs(title="Racial Composition of Each Census Tract", x="Tract", y="Race")
+toDelete <- seq(1, nrow(Carteret_race), 2)
+Carteret_race[ toDelete ,]
+
+Race_Plot <- ggplot(Carteret_Flooding, aes(x = TRACT, y = CFLD_AFREQ)) +
+  geom_col() + 
+  labs(title="Racial Composition of Each Census Tract", x="Census Tract", y="Racial Composition") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  ylim(0,4)
+
+print(Race_Plot)
 
 #Bar graph of annualized frequency of coastal flooding of each census tract
 Carteret_Flooding$TRACT <- as.factor(Carteret_Flooding$TRACT)
@@ -59,13 +66,18 @@ Flooding_Plot <- ggplot(Carteret_Flooding, aes(x = TRACT, y = CFLD_AFREQ)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
   ylim(0,4)
 
-ggplot(Carteret_Flooding, aes(x = TRACT, y = CFLD_AFREQ)) +
-  geom_col()
-
 print(Flooding_Plot)
 
 #Bar graph of annualized frequency of hurricanes of each census tract
+Carteret_Hurricanes$TRACT <- as.factor(Carteret_Hurricanes$TRACT)
 
+Hurricanes_Plot <- ggplot(Carteret_Hurricanes, aes(x = TRACT, y = HRCN_AFREQ)) +
+  geom_col() + 
+  labs(title="Annualized Frequency of Hurricanes by Census Tract", x="Census Tract", y="Annualized Frequency of Hurricanes") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  ylim(0,4)
+
+print(Hurricanes_Plot)
 
 
 ```
