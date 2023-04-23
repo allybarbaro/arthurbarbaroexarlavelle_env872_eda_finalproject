@@ -41,19 +41,20 @@ write.csv(Carteret_Hurricanes, row.names = FALSE, file = "./Data/Processed/Carte
 
 ```
 
-```{r warning=FALSE}
+```{r Created plots, warning=FALSE}
 
 #Bar graph of racial composition of each census tract (later to highlight carteret county)
-Carteret_Race <- read.csv(file = here("Data/Processed/carteret.race.number.csv"), stringsAsFactors = TRUE)
+Carteret_Race <- read.csv(file = here("Data/Processed/carteret.race.number.pivoted.csv"), stringsAsFactors = TRUE)
 
-Carteret_Race <- Carteret_Race %>%
-  
+Carteret_Race$Census.Tract <- as.factor(Carteret_Race$Census.Tract)
+Carteret_Race$Population <- as.numeric(gsub(",","",Carteret_Race$Population))
 
-Race_Plot <- ggplot(Carteret_Race, aes(x = Census.Tract, y=c(White,Black.or.African.American,American.Indian.and.Alaska.Native,Cherokee.Tribal.Grouping,Sioux.Tribal.Grouping,Asian, Asian.Indian, Chinese, Filipino))) +
-  geom_col() + 
-  labs(title="Racial Composition of Each Census Tract", x="Census Tract", y="Racial Composition") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  ylim(0,4)
+Race_Plot <- ggplot(Carteret_Race, aes(x = Census.Tract, y=Population, fill=Race)) + geom_bar(stat='identity', width=2,position='dodge') + 
+  labs(title = "Racial Composition of Each Census Tract",
+         x = "Census Tract",
+         y = "Population") +
+  theme(legend.position="bottom",legend.text=element_text(size=5),legend.title = element_text(size=7),axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 0.5)) + 
+  labs(fill="Race")
 
 print(Race_Plot)
 
@@ -82,14 +83,6 @@ print(Hurricanes_Plot)
 
 ```
 
-
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
