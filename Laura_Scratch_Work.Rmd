@@ -8,7 +8,7 @@ date: "2023-04-14"
 knitr::opts_chunk$set(echo = TRUE)
 
 #Loaded packages
-library(tidyverse);library(rvest); library(ggplot2); library(lubridate); library(here); library(sf)
+library(tidyverse);library(rvest); library(ggplot2); library(lubridate); library(here); library(sf); library(data.table)
 
 #Checked working directory
 getwd()
@@ -44,12 +44,12 @@ write.csv(Carteret_Hurricanes, row.names = FALSE, file = "./Data/Processed/Carte
 ```{r warning=FALSE}
 
 #Bar graph of racial composition of each census tract (later to highlight carteret county)
-Carteret_race <- read.csv(file = here("Data/Processed/Carteret.race.csv"), stringsAsFactors = TRUE)
+Carteret_Race <- read.csv(file = here("Data/Processed/carteret.race.number.csv"), stringsAsFactors = TRUE)
 
-toDelete <- seq(1, nrow(Carteret_race), 2)
-Carteret_race[ toDelete ,]
+Carteret_Race <- Carteret_Race %>%
+  
 
-Race_Plot <- ggplot(Carteret_Flooding, aes(x = TRACT, y = CFLD_AFREQ)) +
+Race_Plot <- ggplot(Carteret_Race, aes(x = Census.Tract, y=c(White,Black.or.African.American,American.Indian.and.Alaska.Native,Cherokee.Tribal.Grouping,Sioux.Tribal.Grouping,Asian, Asian.Indian, Chinese, Filipino))) +
   geom_col() + 
   labs(title="Racial Composition of Each Census Tract", x="Census Tract", y="Racial Composition") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
@@ -75,7 +75,7 @@ Hurricanes_Plot <- ggplot(Carteret_Hurricanes, aes(x = TRACT, y = HRCN_AFREQ)) +
   geom_col() + 
   labs(title="Annualized Frequency of Hurricanes by Census Tract", x="Census Tract", y="Annualized Frequency of Hurricanes") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  ylim(0,4)
+  ylim(0,3.5)
 
 print(Hurricanes_Plot)
 
