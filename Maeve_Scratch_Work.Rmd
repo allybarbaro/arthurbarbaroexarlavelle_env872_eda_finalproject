@@ -42,6 +42,9 @@ caretert.group <- carteret.race.number %>%
   pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian","Asian Indian","Chinese","Filipino"),
                names_to='Race',
                values_to='Population')
+
+write_csv(caretert.group, file = "./Data/Processed/write_csv(carteret.race.number.pivoted.csv")
+
 ```
 
 
