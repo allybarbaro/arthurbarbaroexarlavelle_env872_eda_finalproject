@@ -35,6 +35,13 @@ carteret.race.percent <- carteret.race[seq(2, nrow(carteret.race), 2), ]
 
 write_csv(carteret.race.number, file = "./Data/Processed/carteret.race.number.csv")
 write_csv(carteret.race.percent, file = "./Data/Processed/carteret.race.percent.csv")
+
+
+#pivoting for bar graph
+caretert.group <- carteret.race.number %>%
+  pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian","Asian Indian","Chinese","Filipino"),
+               names_to='Race',
+               values_to='Population')
 ```
 
 
@@ -52,17 +59,11 @@ summary(carteret.flooding)
 
 mapview(carteret.shape, zcol = "TRACTCE")
   
-caretert.group <- carteret.race.number %>%
-   pivot_wider(names_from = "depth", 
-              values_from = "temperature_C")
+
   
   
   
-  #Exercise 6: Spread temperatureC into more than one column based on the depth.
-caretert.group <- carteret.race.number %>%
-  pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian","Asian Indian","Chinese","Filipino"),
-               names_to='Race',
-               values_to='Population')
+
 
 
 
