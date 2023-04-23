@@ -31,11 +31,27 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r}
 #separating race number and percent into two data frames
 carteret.race.number <- carteret.race[seq(1, nrow(carteret.race), 2), ]
-carteret.race.percent <- carteret.race[seq(2, nrow(carteret.race), 2), ]
 
+carteret.race.number <- carteret.race.number %>%
+  select("Census Tract","White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian")
+
+colnames(carteret.race.number) <-(c("TRACTCE", "White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian"))
+
+carteret.race.number$TRACTCE <- as.character(carteret.race.number$TRACTCE)
+
+ 
 write_csv(carteret.race.number, file = "./Data/Processed/carteret.race.number.csv")
-write_csv(carteret.race.percent, file = "./Data/Processed/carteret.race.percent.csv")
+ 
+#Race percent
+carteret.race.percent <- carteret.race[seq(2, nrow(carteret.race), 2), ]
+carteret.race.percent <- carteret.race.percent %>%
+  select("Census Tract","White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian")
 
+colnames(carteret.race.percent) <-(c("TRACTCE", "White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian"))
+
+carteret.race.percent$TRACTCE <- as.character(carteret.race.percent$TRACTCE)
+
+write_csv(carteret.race.percent, file = "./Data/Processed/carteret.race.percent.csv")
 
 #pivoting for bar graph
 caretert.group <- carteret.race.number %>%
@@ -43,7 +59,10 @@ caretert.group <- carteret.race.number %>%
                names_to='Race',
                values_to='Population')
 
-write_csv(caretert.group, file = "./Data/Processed/write_csv(carteret.race.number.pivoted.csv")
+write_csv(caretert.group, file = "./Data/Processed/carteret.race.number.pivoted.csv")
+
+
+
 
 ```
 
@@ -55,10 +74,15 @@ carteret.shape <- st_read('./Data/Processed/carteret_tracts.shp')
 carteret.flooding <- read.csv("./Data/Processed/Carteret_Flooding_Processed.csv")
 
 #determining tract with max flooding: 980100
+#least flooding: 970101
 summary(carteret.flooding)
 
 #join data frames
-#careret
+summary(carteret.shape)
+colnames(carteret.flooding) <-(c("TRACTCE", "Freqency"))
+
+shape.and.demo <- left_join(carteret.shape, carteret.race.percent, by = "TRACTCE")
+
 
 mapview(carteret.shape, zcol = "TRACTCE")
   
