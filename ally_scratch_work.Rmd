@@ -13,6 +13,8 @@ library(here)
 library(tidycensus)
 library(sf)
 library(rgdal)
+library(mapview)
+library(leaflet)
 
 census_api_key("76ed5ebd001e4ba14ba63363f8adecda35d2847b")
 
@@ -46,7 +48,7 @@ full.state.shape <- get_decennial(state = "NC",
                                     #"970103", "970702", "970904", 
                                     #"971003", "970606", "970301",
                                     #"970701", "970504", "970501", "970801", 
-                                    #"970305", "971103", "9801", "9901", "9902"))
+                                    #"970305", "971103"))
   
   
   
@@ -67,7 +69,27 @@ write_csv(carteret.shape, file =
 write_csv(full.state.shape, file = 
             "./Data/Processed/NC_by_county.csv")
 
+carteret.tracts <-read_csv(here("./Data/Raw/carteret_tracts_.csv"))
 
+carteret.sf <- carteret.tracts %>%
+  st_as_sf(coords = c("INTPTLON", "INTPTLAT"), 
+           crs = 4269)
+ggplot(data = carteret.sf) +
+  geom_sf()
+
+mapview(carteret.sf)
+
+please_work <- st_read('./Data/Raw/carteret_tracts.shp')
+mapview(please_work)
+
+st_write(please_work, "./Data/Processed/carteret_tracts.shp")
+
+carteret_shape_correct <- st_read('./Data/Processed/carteret_tracts.shp')
+
+mapview(carteret_shape_correct)
+
+ggplot(data = carteret_shape_correct) +
+  geom_sf()
 ```
 
 ```{r attempt at wrangling census csvs}
@@ -85,6 +107,29 @@ colnames(carteret.age.sex) <- c("Census Tract", "Male", "Female", "Under 5 years
                                 "65 to 74 years", "75 to 84 years", "85 years and over",
                                 "Median age (years)")
 
+carteret.age.sex <- carteret.age.sex %>%
+  mutate("Census Tract" = c("970101", "970101", "970102", "970102", "970103",
+                            "970103", "9702", "9702", "970301",
+                            "970301", "970304", "970304", "970305", "970305",
+                            "970401", "970401", "970402", "970402", "970403",
+                            "970403", "970501", "970501", "970502", "970502",
+                            "970503", "970503", "970504", "970504", "970601",
+                            "970601", "970602", "970602", "970603", "970603",
+                            "970606", "970606", "970701", "970701", "970702",
+                            "970702", "970703", "970703", "970704", "970704",
+                            "970801", "970801", "970804", "970804", "970805",
+                            "970805", "970806", "970806", "970903", "970903",
+                            "970904", "970904", "971003", "971003", "971103",
+                            "971103"))
+
+data.type <- list("Estimate", "Percent")
+rep.data.type <- rep(data.type, times = 30)
+
+carteret.age.sex <- carteret.age.sex %>%
+  mutate("Data Type" = c(rep.data.type)) %>%
+  select("Data Type", everything())
+
+
 write_csv(carteret.age.sex, file = "Data/Processed/Carteret.age.sex.csv")
 
 carteret.race <- carteret.demo %>%
@@ -95,6 +140,25 @@ colnames(carteret.race) <- c("Census Tract", "White", "Black or African American
                             "American Indian and Alaska Native", "Cherokee Tribal Grouping",
                             "Sioux Tribal Grouping", "Asian", "Asian Indian", 
                             "Chinese", "Filipino")
+
+carteret.race <- carteret.race %>%
+  mutate("Census Tract" = c("970101", "970101", "970102", "970102", "970103",
+                            "970103", "9702", "9702", "970301",
+                            "970301", "970304", "970304", "970305", "970305",
+                            "970401", "970401", "970402", "970402", "970403",
+                            "970403", "970501", "970501", "970502", "970502",
+                            "970503", "970503", "970504", "970504", "970601",
+                            "970601", "970602", "970602", "970603", "970603",
+                            "970606", "970606", "970701", "970701", "970702",
+                            "970702", "970703", "970703", "970704", "970704",
+                            "970801", "970801", "970804", "970804", "970805",
+                            "970805", "970806", "970806", "970903", "970903",
+                            "970904", "970904", "971003", "971003", "971103",
+                            "971103"))
+
+carteret.race <- carteret.race %>%
+mutate("Data Type" = c(rep.data.type)) %>%
+  select("Data Type", everything())
 
 write_csv(carteret.race, file = "Data/Processed/Carteret.race.csv")
 
@@ -109,6 +173,38 @@ colnames(carteret.poverty) <- c("Census Tract",
                                 "Under 18 years", "18 to 64 years", 
                                 "65 years and over")
 
+carteret.poverty <- carteret.poverty %>%
+  mutate("Census Tract" = c("970101", "970101", "970101", "970102", "970102", "970102",
+                            "970103", "970103",
+                            "970103", "9702", "9702", "9702", "970301",
+                            "970301", "970301", "970304", "970304", "970304",
+                            "970305", "970305", "970305", "970401",
+                            "970401", "970401", "970402", "970402", "970402",
+                            "970403", "970403",
+                            "970403", "970501", "970501", "970501", "970502", 
+                            "970502", "970502", "970503",
+                            "970503", "970503", "970504", "970504", "970504",
+                            "970601", "970601",
+                            "970601", "970602", "970602", "970602", "970603", 
+                            "970603", "970603", "970606",
+                            "970606", "970606", "970701", "970701", "970701",
+                            "970702", "970702",
+                            "970702", "970703", "970703", "970703", "970704", 
+                            "970704", "970704", "970801",
+                            "970801", "970801", "970804", "970804", "970804",
+                            "970805", "970805",
+                            "970805", "970806", "970806", "970806", "970903", 
+                            "970903", "970903", "970904",
+                            "970904", "970904", "971003", "971003", "971003",
+                            "971103", "971103", "971103"))
+
+pov.list <-list("Total Estimate", "Below Poverty Level", "Percent Below Poverty Level")
+rep.pov.list <- rep(pov.list, times = 30)
+
+carteret.poverty <- carteret.poverty %>%
+mutate("Data Type" = c(rep.pov.list)) %>%
+  select("Data Type", everything())
+
 write_csv(carteret.poverty, file = "Data/Processed/Carteret.poverty.csv")
 
 carteret.employment <- read_csv(here("Data/Raw/ACSST5Y2021.poverty.csv"))
@@ -117,7 +213,36 @@ carteret.employment <- carteret.employment %>%
   select(1, 33:39) %>%
   filter(!row_number() %in% c(1, 2, 3, 94:102))
 
-colnames(carteret.employment) <- c("Census Tract", "Civilian Labor Force 16 Years and Over", "Employed", "Male","Female", "Unemployed", "Male", "Female")
+colnames(carteret.employment) <- c("Census Tract", "Civilian Labor Force 16 Years and Over", "Employed", "Male","Female", "Unemployed", "U_Male", "U_Female")
+
+carteret.employment <- carteret.employment %>%
+  mutate("Census Tract" = c("970101", "970101", "970101", "970102", "970102", "970102",
+                            "970103", "970103",
+                            "970103", "9702", "9702", "9702", "970301",
+                            "970301", "970301", "970304", "970304", "970304",
+                            "970305", "970305", "970305", "970401",
+                            "970401", "970401", "970402", "970402", "970402",
+                            "970403", "970403",
+                            "970403", "970501", "970501", "970501", "970502", 
+                            "970502", "970502", "970503",
+                            "970503", "970503", "970504", "970504", "970504",
+                            "970601", "970601",
+                            "970601", "970602", "970602", "970602", "970603", 
+                            "970603", "970603", "970606",
+                            "970606", "970606", "970701", "970701", "970701",
+                            "970702", "970702",
+                            "970702", "970703", "970703", "970703", "970704", 
+                            "970704", "970704", "970801",
+                            "970801", "970801", "970804", "970804", "970804",
+                            "970805", "970805",
+                            "970805", "970806", "970806", "970806", "970903", 
+                            "970903", "970903", "970904",
+                            "970904", "970904", "971003", "971003", "971003",
+                            "971103", "971103", "971103"))
+
+carteret.employment <- carteret.employment %>%
+mutate("Data Type" = c(rep.pov.list)) %>%
+  select("Data Type", everything())
 
 write_csv(carteret.employment, file = 
             "./Data/Processed/Carteret.Employment.csv")
@@ -127,6 +252,35 @@ carteret.education <- read_csv(here("Data/Raw/ACSST5Y2021.poverty.csv"))
 carteret.education <- carteret.education %>%
   select(1, 27:31) %>%
   filter(!row_number() %in% c(1, 2, 3, 94:102))
+
+carteret.education <- carteret.education %>%
+  mutate("Label (Grouping)" = c("970101", "970101", "970101", "970102", "970102", "970102",
+                            "970103", "970103",
+                            "970103", "9702", "9702", "9702", "970301",
+                            "970301", "970301", "970304", "970304", "970304",
+                            "970305", "970305", "970305", "970401",
+                            "970401", "970401", "970402", "970402", "970402",
+                            "970403", "970403",
+                            "970403", "970501", "970501", "970501", "970502", 
+                            "970502", "970502", "970503",
+                            "970503", "970503", "970504", "970504", "970504",
+                            "970601", "970601",
+                            "970601", "970602", "970602", "970602", "970603", 
+                            "970603", "970603", "970606",
+                            "970606", "970606", "970701", "970701", "970701",
+                            "970702", "970702",
+                            "970702", "970703", "970703", "970703", "970704", 
+                            "970704", "970704", "970801",
+                            "970801", "970801", "970804", "970804", "970804",
+                            "970805", "970805",
+                            "970805", "970806", "970806", "970806", "970903", 
+                            "970903", "970903", "970904",
+                            "970904", "970904", "971003", "971003", "971003",
+                            "971103", "971103", "971103"))
+
+carteret.education <- carteret.education %>%
+mutate("Data Type" = c(rep.pov.list)) %>%
+  select("Data Type", everything())
 
 write_csv(carteret.education, file = 
             "./Data/Processed/carteret.education.csv")
