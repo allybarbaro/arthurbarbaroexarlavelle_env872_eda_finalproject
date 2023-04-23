@@ -38,7 +38,6 @@ carteret.race.number <- carteret.race.number %>%
 colnames(carteret.race.number) <-(c("TRACTCE", "White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian"))
 
 carteret.race.number$TRACTCE <- as.character(carteret.race.number$TRACTCE)
-
  
 write_csv(carteret.race.number, file = "./Data/Processed/carteret.race.number.csv")
  
@@ -60,10 +59,6 @@ caretert.group <- carteret.race.number %>%
                values_to='Population')
 
 write_csv(caretert.group, file = "./Data/Processed/carteret.race.number.pivoted.csv")
-
-
-
-
 ```
 
 
@@ -81,19 +76,10 @@ summary(carteret.flooding)
 summary(carteret.shape)
 colnames(carteret.flooding) <-(c("TRACTCE", "Freqency"))
 
-shape.and.demo <- left_join(carteret.shape, carteret.race.percent, by = "TRACTCE")
+shape.and.race <- left_join(carteret.shape, carteret.race.percent, by = "TRACTCE")
 
-
-mapview(carteret.shape, zcol = "TRACTCE")
-  
-
-  
-  
-  
-
-
-
-
+#view
+mapview(shape.and.race, zcol = "White")
 
 ```
 
