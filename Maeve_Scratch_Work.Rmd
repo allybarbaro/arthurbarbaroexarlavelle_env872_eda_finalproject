@@ -28,23 +28,44 @@ getwd()
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 ```{r}
-#map of greatest flood frequency and demographic data
-carteret.shape <- st_read('./Data/Processed/carteret_tracts.shp')
-carteret.flooding <- read.csv("./Data/Processed/Carteret_Flooding_Processed.csv")
-carteret.race <- read_csv('./Data/Processed/Carteret.race.csv')
-
-carteret.race.2 <- carteret.race[1:60,2]
-
+#separating race number and percent into two data frames
 carteret.race.number <- carteret.race[seq(1, nrow(carteret.race), 2), ]
 carteret.race.percent <- carteret.race[seq(2, nrow(carteret.race), 2), ]
 
 write_csv(carteret.race.number, file = "./Data/Processed/carteret.race.number.csv")
 write_csv(carteret.race.percent, file = "./Data/Processed/carteret.race.percent.csv")
+```
 
-#max.flood.tract <- carteret.flooding %>%
+
+
+```{r}
+#map of greatest flood frequency and demographic data
+carteret.shape <- st_read('./Data/Processed/carteret_tracts.shp')
+carteret.flooding <- read.csv("./Data/Processed/Carteret_Flooding_Processed.csv")
+
+#determining tract with max flooding: 980100
+summary(carteret.flooding)
+
+#join data frames
+#careret
+
+mapview(carteret.shape, zcol = "TRACTCE")
   
+caretert.group <- carteret.race.number %>%
+   pivot_wider(names_from = "depth", 
+              values_from = "temperature_C")
+  
+  
+  
+  #Exercise 6: Spread temperatureC into more than one column based on the depth.
+caretert.group <- carteret.race.number %>%
+  pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian","Asian Indian","Chinese","Filipino"),
+               names_to='Race',
+               values_to='Population')
+
+
+
 
 ```
 
