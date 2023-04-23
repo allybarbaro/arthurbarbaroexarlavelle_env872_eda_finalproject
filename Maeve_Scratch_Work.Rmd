@@ -52,7 +52,7 @@ carteret.race.percent$TRACTCE <- as.character(carteret.race.percent$TRACTCE)
 
 write_csv(carteret.race.percent, file = "./Data/Processed/carteret.race.percent.csv")
 
-#pivoting for bar graph
+#pivoting for bar graph for laura
 caretert.group <- carteret.race.number %>%
   pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian","Asian Indian","Chinese","Filipino"),
                names_to='Race',
@@ -64,7 +64,7 @@ write_csv(caretert.group, file = "./Data/Processed/carteret.race.number.pivoted.
 
 
 ```{r}
-#map of greatest flood frequency and demographic data
+#flood frequency and demographic data
 carteret.shape <- st_read('./Data/Processed/carteret_tracts.shp')
 carteret.flooding <- read.csv("./Data/Processed/Carteret_Flooding_Processed.csv")
 
@@ -73,9 +73,9 @@ carteret.flooding <- read.csv("./Data/Processed/Carteret_Flooding_Processed.csv"
 summary(carteret.flooding)
 
 #join data frames
+#change column names for "TRACTCE" is in common
 summary(carteret.shape)
 colnames(carteret.flooding) <-(c("TRACTCE", "Freqency"))
-
 shape.and.race <- left_join(carteret.shape, carteret.race.percent, by = "TRACTCE")
 
 #view
