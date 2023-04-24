@@ -201,6 +201,7 @@ flooding.race.shape$American.Indian.and.Alaska.Native <- as.numeric(gsub("[\\%,]
 flooding.race.shape$Cherokee.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Cherokee.Tribal.Grouping))
 flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Sioux.Tribal.Grouping))
 flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
+
 #making spatial
 st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shp"))
 flooding_merged <- st_read("./Data/Processed/flooding.race.shp")
@@ -209,11 +210,14 @@ mapview(flooding_merged)
 
 summary(flooding_merged$Freqncy)
 
-carteret.max.flooding2 <- flooding_merged %>%
-  filter(TRACTCE == 970401|970402|970502|970504)
+carteret.max.flooding2 <- flooding_merged[flooding_merged$TRACTCE %in% c("970401","970402","970502","970504"), ]
 
 
-mapview(merged.race.flooding.shape.shp)
+#making spatial
+st_write(carteret.max.flooding2, here("./Data/Processed/maxfloodingcorrect.shp"))
+max_flooding <- st_read("./Data/Processed/maxfloodingcorrect.shp")
+
+mapview(max_flooding)
 
 #determining max flooding: 3.687
 #determining least flooding: 0.012
