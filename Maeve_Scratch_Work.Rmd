@@ -3,8 +3,7 @@ title: "Maeve_Scratch_Work"
 output: html_document
 date: "2023-04-17"
 ---
-
-```{r setup, include=FALSE}
+```{r}
 knitr::opts_chunk$set(echo = TRUE)
 
 #Loaded packages
@@ -18,9 +17,10 @@ library(sf)
 library(rgdal)
 library(mapview)
 library(leaflet)
+library(shiny)
 
 #Checked working directory
-getwd()
+here()
 ```
 
 ## R Markdown
@@ -29,7 +29,10 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 ```{r}
+carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
+carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
 #separating race number and percent into two data frames
+
 carteret.race.number <- carteret.race[seq(1, nrow(carteret.race), 2), ]
 
 carteret.race.number <- carteret.race.number %>%
@@ -39,7 +42,7 @@ colnames(carteret.race.number) <-(c("TRACTCE", "White","Black or African America
 
 carteret.race.number$TRACTCE <- as.character(carteret.race.number$TRACTCE)
  
-write_csv(carteret.race.number, file = "./Data/Processed/carteret.race.number.csv")
+write_csv(carteret.race.number, file = here("./Data/Processed/carteret.race.number.csv"))
  
 #Race percent
 carteret.race.percent <- carteret.race[seq(2, nrow(carteret.race), 2), ]
@@ -50,33 +53,79 @@ colnames(carteret.race.percent) <-(c("TRACTCE", "White","Black or African Americ
 
 carteret.race.percent$TRACTCE <- as.character(carteret.race.percent$TRACTCE)
 
-write_csv(carteret.race.percent, file = "./Data/Processed/carteret.race.percent.csv")
+write_csv(carteret.race.percent, file = here("./Data/Processed/carteret.race.percent.csv"))
 
 #pivoting for bar graph for laura
 caretert.group <- carteret.race.number %>%
-  pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian","Asian Indian","Chinese","Filipino"),
+  pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian",),
                names_to='Race',
                values_to='Population')
 
-write_csv(caretert.group, file = "./Data/Processed/carteret.race.number.pivoted.csv")
+
+write_csv(caretert.group, file = here("./Data/Processed/write_csv(carteret.race.number.pivoted.csv"))
+
+write_csv(caretert.group, file = here("./Data/Processed/carteret.race.number.pivoted.csv"))
+
 ```
 
 
 
 ```{r}
+
+#map of greatest flood frequency and demographic data
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+
 #flood frequency and demographic data
-carteret.shape <- st_read('./Data/Processed/carteret_tracts.shp')
-carteret.flooding <- read.csv("./Data/Processed/Carteret_Flooding_Processed.csv")
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+carteret.flooding <- read.csv(here("./Data/Processed/Carteret_Flooding_Processed.csv"))
+
 
 #determining tract with max flooding: 980100
 #least flooding: 970101
 summary(carteret.flooding)
 
 #join data frames
+
+#careret
+
+mapview(carteret.shape, zcol = "TRACTCE")
+
+#map of Carteret county
+carteret.shape <- sf::read_sf(here('./Data/Processed/carteret_tracts.shp')) %>%
+  sf::st_transform('+proj=longlat +datum=WGS84')
+
+leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data=carteret.shape)
+
+
+
+ui <- fluidPage(mainPanel( 
+  #this will create a space for us to display our map
+  leafletOutput(outputId = "mymap") 
+  ))
+
+server <- function(input, output, session) {
+#create the map
+output$mymap <- renderLeaflet({
+    leaflet() %>% 
+      addTiles() %>% 
+      addPolygons(data=carteret.shape)
+                 })
+}
+shinyApp(ui, server)
+  
+
+
+
+
 #change column names for "TRACTCE" is in common
 summary(carteret.shape)
 colnames(carteret.flooding) <-(c("TRACTCE", "Freqency"))
 shape.and.race <- left_join(carteret.shape, carteret.race.percent, by = "TRACTCE")
+
 
 #view
 mapview(shape.and.race, zcol = "White")
@@ -84,7 +133,31 @@ mapview(shape.and.race, zcol = "White")
 ```
 
 
-```{}
+```{r}
+#map of Carteret county
+carteret.shape <- sf::read_sf(here('./Data/Processed/carteret_tracts.shp')) %>%
+  sf::st_transform('+proj=longlat +datum=WGS84')
 
+Most_Flood <- 980100
+leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data=carteret.shape)
+
+
+
+ui <- fluidPage(mainPanel( 
+  #this will create a space for us to display our map
+  leafletOutput(outputId = 'mymap') 
+  ))
+
+server <- function(input, output, session) {
+#create the map
+output$mymap <- renderLeaflet({
+    leaflet() %>% 
+      addTiles() %>% 
+      addPolygons(data=carteret.shape)
+                 })
+}
+shinyApp(ui, server)
 
 ```
