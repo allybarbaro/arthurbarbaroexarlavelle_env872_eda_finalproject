@@ -169,11 +169,63 @@ write.csv(carteret.belowpoverty.pivot,
           file = here("./Data/Processed/carteret.belowpoverty.pivot.csv"))
 ```
 
-```{r Carteret county with demographics}
+```{r Carteret county with demographics, echo=FALSE}
 carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
 carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
 shape.and.race <- merge(carteret.shape, carteret.race.number, by = "TRACTCE")
 
-mapview(shape.and.race, zcol = "White",
-        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+#mapview(shape.and.race, zcol = "White",
+        #col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+```
+
+
+```{r Joining flooding data, race data, and shapefile}
+#loading in required data
+carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.flooding) <-(c("TRACTCE", "Frequency"))
+carteret.flooding$TRACTCE <- as.character(carteret.flooding$TRACTCE)
+
+#merging files
+shape.flooding <- merge(carteret.flooding, carteret.shape)
+flooding.race.shape <- merge(shape.flooding, carteret.race.percent)
+colnames(flooding.race.shape)
+
+#getting rid of % symbol
+flooding.race.shape$White <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$White))
+flooding.race.shape$Black.or.African.American <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Black.or.African.American))
+flooding.race.shape$American.Indian.and.Alaska.Native <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$American.Indian.and.Alaska.Native))
+flooding.race.shape$Cherokee.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Cherokee.Tribal.Grouping))
+flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Sioux.Tribal.Grouping))
+flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
+#making spatial
+st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shp"))
+flooding_merged <- st_read("./Data/Processed/flooding.race.shp")
+
+mapview(flooding_merged)
+
+summary(flooding_merged$Freqncy)
+
+carteret.max.flooding2 <- flooding_merged %>%
+  filter(TRACTCE == 970401|970402|970502|970504)
+
+
+mapview(merged.race.flooding.shape.shp)
+
+#determining max flooding: 3.687
+#determining least flooding: 0.012
+summary(merged.race.flooding.shape$Frequency)
+
+#extracting max flooding tract
+carteret.max.flooding <- merged.race.flooding.shape %>%
+  filter(c(8,9,12,14))
+
+carteret.max.flooding <- merged.race.flooding.shape %>%
+  filter(TRACTCE =="970401","970402","970502","970504")
+
+carteret.max.flooding <- merged.race.flooding.shape %>%
+  filter(max(Frequency))
 ```
