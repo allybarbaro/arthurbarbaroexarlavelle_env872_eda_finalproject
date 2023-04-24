@@ -208,10 +208,10 @@ flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flood
 flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
 
 #making spatial
-
 st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shape.shp"))
 flooding.race.shape <- st_read("./Data/Processed/flooding.race.correct.shp")
 colnames(flooding.race.shape)
+
 #white Population Map
 mapview(flooding.race.shape, zcol = "White", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County White Population", label = "White Population Percent")
 
@@ -249,4 +249,32 @@ mapview(max_flooding, zcol = "Asian Population Percent", layer.name = "% Asian P
 #map of most flooded and Native American population
 mapview(max_flooding, zcol = "American Indian and Alaska Native Population Percent", layer.name = "% Native American Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
 
+```
+
+```{r Carteret county Flooding GLM, echo=FALSE}
+#loading in required data
+carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.employment.percent.belowpoverty.pivot <- read_csv(here('./Data/Processed/carteret.employment.percent.belowpoverty.pivot.csv'))
+carteret.poverty.percent.pivot <- read_csv(here('./Data/Processed/carteret.poverty.percent.pivot.csv'))
+carteret.age.sex.percent.pivot <-  read_csv("Data/Processed/Caretert.age.sex.percent.pivot.csv")
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.employment.percent.belowpoverty.pivot) <- c("","Data Type","TRACTCE","Category","Percent of Population Employed")
+carteret.employment.percent.belowpoverty.pivot$TRACTCE <- as.character(carteret.employment.percent.belowpoverty.pivot$TRACTCE)
+colnames(carteret.poverty.percent.pivot) <- c("","Data Type","TRACTCE","Category","Percent of Population")
+carteret.poverty.percent.pivot$TRACTCE <- as.character(carteret.poverty.percent.pivot$TRACTCE)
+colnames(carteret.age.sex.percent.pivot)<- c("","Data Type","TRACTCE","Age","Population","Sex","Percent")
+carteret.age.sex.percent.pivot$TRACTCE <- as.character(carteret.age.sex.percent.pivot$TRACTCE)
+
+#merging files
+race.flooding <- merge(carteret.flooding, carteret.race.percent)
+flooding.race.employment <- merge(race.flooding, carteret.employment.percent.belowpoverty.pivot)
+education.flood.race.employment
+combined.demographics <- merge(flooding.race.employment.shape, carteret.age.sex.percent.pivot)
+
+x <- glm(formula = combined.demographics ~ NEAR_DIST + Key + Floors + Year, family= "binomial", data = TurtleDeps)
+summary(x)
+tab_model(x)
 ```
