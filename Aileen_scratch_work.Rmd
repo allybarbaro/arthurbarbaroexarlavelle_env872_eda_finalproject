@@ -6,7 +6,8 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl)
+library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl);library(shinydashboard);
+library(shiny);library(leaflet)
 here()
 ```
 
@@ -163,3 +164,22 @@ write.csv(carteret.belowpoverty.pivot,
           file = here("./Data/Processed/carteret.belowpoverty.pivot.csv"))
 ```
 
+```{r Carteret county with demographics}
+carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
+
+
+ui <- fluidPage(
+  leafletOutput(outputId = "mymap")
+  )
+
+server <- function(input,output){
+  #create the map
+  output$mymap <- renderLeaflet({
+    leaflet(data) %>% 
+      setView(lng = -99, lat = 45, zoom = 2)  %>% #setting the view over ~ center of North America
+      addTiles() %>% 
+      addCircles(data = data, lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~sqrt(mag)*25000, popup = ~as.character(mag), label = ~as.character(paste0("Magnitude: ", sep = " ", mag)), color = ~pal(mag), fillOpacity = 0.5)
+  })
+}
+shinyApp(ui=ui, server=server)
+```
