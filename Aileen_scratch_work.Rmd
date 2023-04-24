@@ -179,7 +179,8 @@ carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
 carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
 shape.and.race <- merge(carteret.shape, carteret.race.number, by = "TRACTCE")
 
-mapview(shape.and.race, zcol = "NAMELSAD")
+m1 <- mapview(shape.and.race, zcol = "NAMELSAD", col.regions = paletteer_c("grDevices::Set 3", 30,), layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD", popup = popupTable(shape.and.race$NAMELSAD))
+m1
 ```
 
 
