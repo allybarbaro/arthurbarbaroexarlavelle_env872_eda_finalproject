@@ -29,6 +29,9 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 ```{r wrangling race data}
+#read in race data
+carteret.race <- read_csv(here("./Data/Processed/Carteret.race.csv"))
+
 #separating race number and percent into two data frames
 #race number
 carteret.race.number <- carteret.race[seq(1, nrow(carteret.race), 2), ]
@@ -53,20 +56,15 @@ carteret.race.percent$TRACTCE <- as.character(carteret.race.percent$TRACTCE)
 
 write_csv(carteret.race.percent, file = here("./Data/Processed/carteret.race.percent.csv"))
 
-
 carteret.race.number<- read_csv(here("./Data/Processed/carteret.race.number.csv"))
 carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
-carteret.race <- read_csv(here("./Data/Processed/Carteret.race.csv"))
-
 ```
 
-```{rpivoting race data for bar graph for laura}
-
+```{pivoting race data for bar graph for laura}
 caretert.group <- carteret.race.number %>%
   pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian",),
                names_to='Race',
                values_to='Population')
-
 
 write_csv(caretert.group, file = here("./Data/Processed/write_csv(carteret.race.number.pivoted.csv"))
 
@@ -75,9 +73,8 @@ write_csv(caretert.group, file = here("./Data/Processed/carteret.race.number.piv
 
 
 
-```{r Reading in all data}
+```{r}
 read.csv("./Data/Processed/carteret.race.percent.csv")
-
 
 carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
 
@@ -132,3 +129,10 @@ output$mymap <- renderLeaflet({
 shinyApp(ui, server)
 
 ```
+
+
+```{r}
+
+```
+
+
