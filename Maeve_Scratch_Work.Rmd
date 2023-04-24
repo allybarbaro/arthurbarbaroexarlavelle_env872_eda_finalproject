@@ -74,7 +74,7 @@ write_csv(caretert.group, file = here("./Data/Processed/carteret.race.number.piv
 ```{r Reading in all data}
 read.csv("./Data/Processed/carteret.race.percent.csv")
 
-<<<<<<< HEAD
+
 carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
 
 #flood frequency and demographic data
@@ -126,8 +126,5 @@ output$mymap <- renderLeaflet({
                  })
 }
 shinyApp(ui, server)
-  
-=======
->>>>>>> 77377fdeda577fdc5fa14b7b02b63db27ecfb0d9
 
 ```
