@@ -72,8 +72,7 @@ write_csv(caretert.group, file = here("./Data/Processed/carteret.race.number.piv
 ```
 
 
-
-```{r Joining flooding data, race data, and shapefile}
+```{r none of this is correct but im scared to delete it}
 #loading in required data
 carteret.race.percent <- read.csv("./Data/Processed/carteret.race.percent.csv")
 carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
@@ -100,10 +99,9 @@ mapview(flooding_merged)
 
 summary(flooding_merged$Freqncy)
 
+#selectiing max flooding tracts
 carteret.max.flooding2 <- flooding_merged %>%
   filter(TRACTCE == 970401|970402|970502|970504)
-
-
 
 merged.race.flooding.shape <- merge(carteret.race.percent, carteret.flooding, carteret.shape, by.x = "TRACTCE", all=FALSE)
 
@@ -128,47 +126,6 @@ carteret.max.flooding <- merged.race.flooding.shape %>%
 
 carteret.max.flooding <- merged.race.flooding.shape %>%
   filter(max(Frequency))
-
-
-
-
-
-
-#visualize
-
-mapview(carteret.shape, zcol = "TRACTCE")
-
-
-
-
-
-
-#view
-mapview(shape.and.race, zcol = "White")
-
-#map of Carteret county
-shape.and.race <- sf::read_sf(shape.and.race) %>%
-  sf::st_transform('+proj=longlat +datum=WGS84')
-
-leaflet() %>% 
-  addTiles() %>% 
-  addPolygons(data=shape.and.race)
-
-
-ui <- fluidPage(mainPanel( 
-  #this will create a space for us to display our map
-  leafletOutput(outputId = "mymap") 
-  ))
-
-server <- function(input, output, session) {
-#create the map
-output$mymap <- renderLeaflet({
-    leaflet() %>% 
-      addTiles() %>% 
-      addPolygons(data=shape.and.race, zcol = "White")
-                 })
-}
-shinyApp(ui, server)
 
 ```
 
@@ -200,8 +157,8 @@ flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$A
 #st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shp"))
 flooding_merged <- st_read("./Data/Processed/flooding.race.shp")
 
-mapview(flooding_merged)
-
+#determining max flooding: 3.687
+#determining least flooding: 0.012
 summary(flooding_merged$Freqncy)
 
 #selecting for max flooded tracts
@@ -210,37 +167,39 @@ carteret.max.flooding2 <- flooding_merged[flooding_merged$TRACTCE %in% c("970401
 #selecting for min flooded tracts
 carteret.min.flooding <- flooding_merged[flooding_merged$TRACTCE %in% c("970603"), ]
 
-
 #making spatial
 #st_write(carteret.max.flooding2, here("./Data/Processed/maxfloodingcorrect.shp"))
 max_flooding <- st_read("./Data/Processed/maxfloodingcorrect.shp")
-st_write(carteret.min.flooding, here("./Data/Processed/minfloodingcorrect.shp"))
+#st_write(carteret.min.flooding, here("./Data/Processed/minfloodingcorrect.shp"))
 min_flooding <- st_read("./Data/Processed/minfloodingcorrect.shp")
-#determining max flooding: 3.687
-#determining least flooding: 0.012
 
+#updating column names
 colnames(max_flooding) <- c("Census Tract Number","Annualized Flooding Frequency","STATEFP","COUNTYF","GEOID","NAME","Censuse Tract Name","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","White Population Percent","Black or African American Population Percent","American Indian and Alaska Native Population Percent","Cherokee Tribal Grouping Population Percent","Sioux Tribal Grouping Population Percent","Asian Population Percent","geometry")
 
 colnames(min_flooding) <- c("Census Tract Number","Annualized Flooding Frequency","STATEFP","COUNTYF","GEOID","NAME","Censuse Tract Name","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","White Population Percent","Black or African American Population Percent","American Indian and Alaska Native Population Percent","Cherokee Tribal Grouping Population Percent","Sioux Tribal Grouping Population Percent","Asian Population Percent","geometry")
 
 ```
 
-```{r max floding and demographic maps}
+```{r max floding and race maps}
 #White Population Percent
 mapview(max_flooding, zcol = "White Population Percent",
-        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "White Population Percent in Tracts with Highest Annualized Flooding Frequency")
 
 #Black or African American Population Percent
 mapview(max_flooding, zcol = "Black or African American Population Percent",
-        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "Black or African American Population Percent in Tracts with Highest Annualized Flooding Frequency")
 
 #American Indian and Alaska Native Population Percent
 mapview(max_flooding, zcol = "American Indian and Alaska Native Population Percent",
-        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "American Indian and Alaska Native Population Percent in Tracts with Highest Annualized Flooding Frequency")
 
 #Cherokee Tribal Grouping Population Percent
 mapview(max_flooding, zcol = "Cherokee Tribal Grouping Population Percent",
-        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "Cherokee Tribal Grouping Population Percent in Tracts with Highest Annualized Flooding Frequency")
 
 #Sioux Tribal Grouping Population Percent
 mapview(max_flooding, zcol = "Sioux Tribal Grouping Population Percent",
@@ -252,27 +211,31 @@ mapview(max_flooding, zcol = "Asian Population Percent",
         col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Asian Population Percent in Tracts with Highest Annualized Flooding Frequency")
 
 ```
-```{r min flooding and demographics map}
+```{r min flooding and race maps}
 #White Population Percent
 mapview(min_flooding, zcol = "White Population Percent",
-        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "White Population Percent in Tract with Lowest Annualized Flooding Frequency")
 
 #Black or African American Population Percent
 mapview(min_flooding, zcol = "Black or African American Population Percent",
-        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "Black or African American Population Percent in Tract with Lowest Annualized Flooding Frequency")
 
 #American Indian and Alaska Native Population Percent
 mapview(min_flooding, zcol = "American Indian and Alaska Native Population Percent",
-        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "American Indian and Alaska Native Population Percent in Tract with Lowest Annualized Flooding Frequency")
 
 #Cherokee Tribal Grouping Population Percent
 mapview(min_flooding, zcol = "Cherokee Tribal Grouping Population Percent",
-        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "Cherokee Tribal Grouping Population Percent in Tract with Lowest Annualized Flooding Frequency")
 
 #Sioux Tribal Grouping Population Percent
 mapview(min_flooding, zcol = "Sioux Tribal Grouping Population Percent",
         col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
-        layer.name = "Sioux Tribal Grouping Percent in Tracts with Lowest Annualized Flooding Frequency")
+        layer.name = "Sioux Tribal Grouping Percent in Tract with Lowest Annualized Flooding Frequency")
 
 #Asian Population Percent
 mapview(min_flooding, zcol = "Asian Population Percent",
