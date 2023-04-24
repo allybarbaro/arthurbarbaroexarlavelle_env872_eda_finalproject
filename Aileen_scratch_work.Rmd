@@ -138,8 +138,28 @@ colnames(carteret.poverty)
 
 #pivot longer
 carteret.poverty.percent.pivot <- carteret.poverty.percent %>%
-  pivot_longer(cols=c("Data Type","Census Tract","Population for Whom Poverty Status is Determined","Under 18 years","18 to 64 years","65 years and over"),
+  mutate(across(c("Census Tract"), as.numeric)) %>%
+  pivot_longer(cols=c("Population for Whom Poverty Status is Determined","Under 18 years","18 to 64 years","65 years and over"),
                names_to='Category',
-               values_to='Percent of Population') 
+               values_to='Percent of Population')
+
+write.csv(carteret.poverty.percent.pivot,
+          file = here("./Data/Processed/carteret.poverty.percent.pivot.csv"))
+
+carteret.poverty.totalestimate.pivot <- carteret.poverty.totalestimate %>%
+  pivot_longer(cols=c("Population for Whom Poverty Status is Determined","Under 18 years","18 to 64 years","65 years and over"),
+               names_to='Category',
+               values_to='Total Estimate of Population')
+
+write.csv(carteret.poverty.totalestimate.pivot,
+          file = here("./Data/Processed/carteret.poverty.totalestimate.pivot.csv"))
+
+carteret.belowpoverty.pivot <- carteret.belowpoverty %>%
+  pivot_longer(cols=c("Population for Whom Poverty Status is Determined","Under 18 years","18 to 64 years","65 years and over"),
+               names_to='Category',
+               values_to='Population Below Poverty Line')
+
+write.csv(carteret.belowpoverty.pivot,
+          file = here("./Data/Processed/carteret.belowpoverty.pivot.csv"))
 ```
 
