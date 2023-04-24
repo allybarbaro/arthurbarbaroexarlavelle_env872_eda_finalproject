@@ -172,12 +172,14 @@ write.csv(carteret.belowpoverty.pivot,
 ```
 
 ```{r Carteret county with demographics, echo=FALSE}
-carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
 carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
-shape.and.race <- merge(carteret.shape, carteret.race.number, by = "TRACTCE")
-
 #mapview(shape.and.race, zcol = "White",
         #col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
+shape.and.race <- merge(carteret.shape, carteret.race.number, by = "TRACTCE")
+
+mapview(shape.and.race, zcol = "NAMELSAD")
 ```
 
 
@@ -205,7 +207,7 @@ flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flood
 flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
 
 #making spatial
-st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shp"))
+#st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shp"))
 flooding_merged <- st_read("./Data/Processed/flooding.race.shp")
 
 mapview(flooding_merged)
@@ -217,22 +219,16 @@ carteret.max.flooding2 <- flooding_merged[flooding_merged$TRACTCE %in% c("970401
 
 
 #making spatial
-st_write(carteret.max.flooding2, here("./Data/Processed/maxfloodingcorrect.shp"))
+#st_write(carteret.max.flooding2, here("./Data/Processed/maxfloodingcorrect.shp"))
 max_flooding <- st_read("./Data/Processed/maxfloodingcorrect.shp")
-
-mapview(max_flooding)
-
 #determining max flooding: 3.687
 #determining least flooding: 0.012
-summary(merged.race.flooding.shape$Frequency)
 
-#extracting max flooding tract
-carteret.max.flooding <- merged.race.flooding.shape %>%
-  filter(c(8,9,12,14))
+colnames(max_flooding) <- c("Census Tract Number","Annualized Flooding Frequency","STATEFP","COUNTYF","GEOID","NAME","Censuse Tract Name","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","White Population Percent","Black or African American Population Percent","American Indian and Alaska Native Population Percent","Cherokee Tribal Grouping Population Percent","Sioux Tribal Grouping Population Percent","Asian Population Percent","geometry")
 
-carteret.max.flooding <- merged.race.flooding.shape %>%
-  filter(TRACTCE =="970401","970402","970502","970504")
+mapview(max_flooding, zcol = "Black or African American Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
 
-carteret.max.flooding <- merged.race.flooding.shape %>%
-  filter(max(Frequency))
+
+
 ```
