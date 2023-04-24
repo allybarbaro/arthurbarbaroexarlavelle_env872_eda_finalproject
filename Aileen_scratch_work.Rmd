@@ -7,8 +7,13 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl);library(shinydashboard);
-library(shiny);library(leaflet)
+library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer)
 here()
+#setting my own theme
+Aileentheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"),
+        axis.ticks = element_line(color = "black"), 
+        plot.background = element_rect(color= "white"))
 ```
 
 ## R Markdown
@@ -165,33 +170,10 @@ write.csv(carteret.belowpoverty.pivot,
 ```
 
 ```{r Carteret county with demographics}
-carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
 carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
-shape.and.race <- merge(carteret.shape, carteret.race.percent, by = "TRACTCE")
+shape.and.race <- merge(carteret.shape, carteret.race.number, by = "TRACTCE")
 
-shape.and.race <- st_transform(shape.and.race, crs = '+proj=longlat +datum=WGS84')
-
-leaflet() %>%
-  addTiles() %>%
-  setView(lng = -076.35, lat = 34.88, zoom = 14) %>%
-  addPolygons(data = shape.and.race, color = "blue", stroke = 1, opacity = 0.8)
-
-ui <- fluidPage(
-  leafletOutput(outputId = "mymap")
-  )
-
-server <- function(input,output){
-  #create the map
-  output$mymap <- renderLeaflet({
-   leaflet() %>%
-  addTiles() %>%
-  setView(lng = -076.35, lat = 34.88, zoom = 14) %>%
-  addPolygons(data = shape.and.race, color = "blue", stroke = 1, opacity = 0.8)
-  addLegend(data = shape.and.race,
-            position = "bottomright",
-            title = "Legend",
-            opacity = 1)
-  })
-}
-shinyApp(ui=ui, server=server)
+mapview(shape.and.race, zcol = "White",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
 ```
