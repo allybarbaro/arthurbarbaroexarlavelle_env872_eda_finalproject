@@ -127,8 +127,9 @@ write.csv(carteret.employment.belowpoverty.pivot,
           file = here("./Data/Processed/carteret.employment.belowpoverty.pivot.csv"))
 ```
 
-```{r Poverty Pivot Longer}
+```{r Poverty Pivot Longer, echo=FALSE}
 carteret.poverty <- read_csv(here("./Data/Processed/Carteret.poverty.csv"))
+
 #seperate number and percents
 carteret.poverty.percent <- carteret.poverty[seq(3, nrow(carteret.poverty), 3), ]
 carteret.poverty.totalestimate <- carteret.poverty[seq(1, nrow(carteret.poverty), 3), ]
