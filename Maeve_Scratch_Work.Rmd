@@ -29,10 +29,10 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 ```{r}
-carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
+carteret.race.number<- read_csv(here("./Data/Processed/carteret.race.number.csv"))
 carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.race <- read_csv(here("./Data/Processed/Carteret.race.csv"))
 #separating race number and percent into two data frames
-
 carteret.race.number <- carteret.race[seq(1, nrow(carteret.race), 2), ]
 
 carteret.race.number <- carteret.race.number %>%
