@@ -172,6 +172,50 @@ shinyApp(ui, server)
 
 ```
 
+```{r From aileen's edits}
+#loading in required data
+carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.flooding) <-(c("TRACTCE", "Frequency"))
+carteret.flooding$TRACTCE <- as.character(carteret.flooding$TRACTCE)
+
+#merging files
+shape.flooding <- merge(carteret.flooding, carteret.shape)
+flooding.race.shape <- merge(shape.flooding, carteret.race.percent)
+colnames(flooding.race.shape)
+
+#getting rid of % symbol
+flooding.race.shape$White <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$White))
+flooding.race.shape$Black.or.African.American <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Black.or.African.American))
+flooding.race.shape$American.Indian.and.Alaska.Native <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$American.Indian.and.Alaska.Native))
+flooding.race.shape$Cherokee.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Cherokee.Tribal.Grouping))
+flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Sioux.Tribal.Grouping))
+flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
+
+#making spatial
+st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shp"))
+flooding_merged <- st_read("./Data/Processed/flooding.race.shp")
+
+#determining max flooding: 3.687
+#determining least flooding: 0.012
+summary(flooding_merged$Freqncy)
+
+#selecting for max flooded tracts
+carteret.max.flooding2 <- flooding_merged[flooding_merged$TRACTCE %in% c("970401","970402","970502","970504"), ]
+
+```
+```{r Maps of demographicis in max flooding tracts}
+#max flooding, white
+mapview(carteret.max.flooding2, zcol = "White")
+
+
+
+
+```
+
 
 ```{r loading packages for Aileen's}
 #install.packages(paletteer)
