@@ -73,32 +73,74 @@ write_csv(caretert.group, file = here("./Data/Processed/carteret.race.number.piv
 
 
 
-```{r}
-read.csv("./Data/Processed/carteret.race.percent.csv")
-
+```{r Joining flooding data, race data, and shapefile}
+#loading in required data
+carteret.race.percent <- read.csv("./Data/Processed/carteret.race.percent.csv")
 carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
-
-#flood frequency and demographic data
 carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
-carteret.flooding <- read.csv(here("./Data/Processed/Carteret_Flooding_Processed.csv"))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.flooding) <-(c("TRACTCE", "Frequency"))
+carteret.flooding$TRACTCE <- as.character(carteret.flooding$TRACTCE)
+
+#merging 3 data frames
+listed_df = list(carteret.race.percent, carteret.flooding, carteret.shape)
+Reduce(function(x, y) merge(x, y, all=FALSE), list_df)
+
+list_df = list(carteret.race.percent, carteret.flooding, carteret.shape)
+df2 <- list_df %>% 
+  reduce(inner_join, by='TRACTCE')
+df2
+
+#making spatial
+st_write(df2, here("./Data/Processed/merged.race.flooding.shape.shp"))
+flooding_merged <- st_read("./Data/Processed/merged.race.flooding.shape.shp")
+
+mapview(flooding_merged)
+
+summary(flooding_merged$Freqncy)
+
+carteret.max.flooding2 <- flooding_merged %>%
+  filter(TRACTCE == 970401|970402|970502|970504)
 
 
-#determining tract with max flooding: 980100
-#least flooding: 970101
-summary(carteret.flooding)
 
-#join data frames
+merged.race.flooding.shape <- merge(carteret.race.percent, carteret.flooding, carteret.shape, by.x = "TRACTCE", all=FALSE)
 
-#careret
+merged.race.flooding.shape2 <- merge(merged.race.flooding.shape, carteret.shape)
+
+              #merge(carteret.shape)
+
+
+
+mapview(merged.race.flooding.shape.shp)
+
+#determining max flooding: 3.687
+#determining least flooding: 0.012
+summary(merged.race.flooding.shape$Frequency)
+
+#extracting max flooding tract
+carteret.max.flooding <- merged.race.flooding.shape %>%
+  filter(c(8,9,12,14))
+
+carteret.max.flooding <- merged.race.flooding.shape %>%
+  filter(TRACTCE =="970401","970402","970502","970504")
+
+carteret.max.flooding <- merged.race.flooding.shape %>%
+  filter(max(Frequency))
+
+
+
+
+
+
+#visualize
 
 mapview(carteret.shape, zcol = "TRACTCE")
 
 
 
-#change column names for "TRACTCE" is in common
-summary(carteret.shape)
-colnames(carteret.flooding) <-(c("TRACTCE", "Freqency"))
-shape.and.race <- left_join(carteret.shape, carteret.race.percent, by = "TRACTCE")
+
 
 
 #view
