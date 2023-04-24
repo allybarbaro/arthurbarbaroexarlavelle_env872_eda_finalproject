@@ -69,5 +69,60 @@ write_csv(caretert.group, file = here("./Data/Processed/carteret.race.number.piv
 
 
 ```{r}
+#map of greatest flood frequency and demographic data
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
 
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+
+#flood frequency and demographic data
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+carteret.flooding <- read.csv(here("./Data/Processed/Carteret_Flooding_Processed.csv"))
+
+
+#determining tract with max flooding: 980100
+#least flooding: 970101
+summary(carteret.flooding)
+
+#join data frames
+
+#careret
+
+mapview(carteret.shape, zcol = "TRACTCE")
+
+#map of Carteret county
+#carteret.shape <- sf::read_sf(here('./Data/Processed/carteret_tracts.shp') %>%
+  #sf::st_transform('+proj=longlat +datum=WGS84'))
+
+leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data=carteret.shape)
+
+
+
+ui <- fluidPage(mainPanel( 
+  #this will create a space for us to display our map
+  leafletOutput(outputId = "mymap") 
+  ))
+
+server <- function(input, output, session) {
+#create the map
+output$mymap <- renderLeaflet({
+    leaflet() %>% 
+      addTiles() %>% 
+      addPolygons(data=carteret.shape)
+                 })
+}
+shinyApp(ui, server)
+  
+
+#change column names for "TRACTCE" is in common
+summary(carteret.shape)
+colnames(carteret.flooding) <-(c("TRACTCE", "Freqency"))
+shape.and.race <- left_join(carteret.shape, carteret.race.percent, by = "TRACTCE")
+
+
+#view
+mapview(shape.and.race, zcol = "White")
+
+```
 ```

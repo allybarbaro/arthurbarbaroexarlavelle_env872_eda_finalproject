@@ -46,6 +46,7 @@ write.csv(Carteret_Hurricanes, row.names = FALSE, file = "./Data/Processed/Carte
 #Bar graph of racial composition of each census tract (later to highlight carteret county)
 Carteret_Race <- read.csv(file = here("Data/Processed/carteret.race.number.pivoted.csv"), stringsAsFactors = TRUE)
 
+colnames(Carteret_Race) <- c("Census.Tract","Race","Population")
 Carteret_Race$Census.Tract <- as.factor(Carteret_Race$Census.Tract)
 Carteret_Race$Population <- as.numeric(gsub(",","",Carteret_Race$Population))
 
@@ -83,6 +84,29 @@ print(Hurricanes_Plot)
 
 ```
 
-```
 
+```{r RShiny}
+ui <- fluidPage(
+  titlePanel(title = h4("Racial Composition of Each Census Tract", align="center")),
+  sidebarPanel(
+
+    #radioButtons("Demographics", "Select Demographics of Interest",
+                 choices = c("White", "Black or African American", "American Indian and Alaska Native", "Cherokee Tribal Grouping", "Sioux Tribal Grouping", "Asian")),
+
+  mainPanel(
+    plotOutput("bar",height = 500))
+)
+
+server <- function(input,output){
+  output$bar <- renderPlot({
+   ggplot(Carteret_Race, aes(x = Census.Tract, y=Population, fill=Race)) + geom_bar(stat='identity', width=2,position='dodge') + 
+  labs(title = "Racial Composition of Each Census Tract",
+         x = "Census Tract",
+         y = "Population") +
+  theme(legend.position="bottom",legend.text=element_text(size=4),legend.title = element_text(size=6),axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 0.5)) + 
+  labs(fill="Race")
+  })
+}
+shinyApp(ui=ui, server=server)
+```
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
