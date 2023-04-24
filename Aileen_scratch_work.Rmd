@@ -9,7 +9,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl);library(shinydashboard);
-library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer)
+library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer);library(leafpop)
 here()
 #setting my own theme
 Aileentheme <- theme_classic(base_size = 14) +
@@ -208,28 +208,45 @@ flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flood
 flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
 
 #making spatial
-#st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shp"))
-flooding_merged <- st_read("./Data/Processed/flooding.race.shp")
 
-mapview(flooding_merged)
+st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shape.shp"))
+flooding.race.shape <- st_read("./Data/Processed/flooding.race.correct.shp")
+colnames(flooding.race.shape)
+#white Population Map
+mapview(flooding.race.shape, zcol = "White", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County White Population", label = "White Population Percent")
 
-summary(flooding_merged$Freqncy)
+#Black/African American Population Map
+mapview(flooding.race.shape, zcol = "Bl__A_A", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Black or African American Population Percent", label = flooding.race.shape$TRACTCE)
+
+#American Indian and Native Alaskan Population Map
+mapview(flooding.race.shape, zcol = "A_I__A_", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Native American Population Percent", label = flooding.race.shape$TRACTCE)
+
+#Asian Population Map
+mapview(flooding.race.shape, zcol = "Asian", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Asian Population Percent", label = flooding.race.shape$TRACTCE)
 
 #selecting for max flooded tracts
 carteret.max.flooding2 <- flooding_merged[flooding_merged$TRACTCE %in% c("970401","970402","970502","970504"), ]
 
-
 #making spatial
 #st_write(carteret.max.flooding2, here("./Data/Processed/maxfloodingcorrect.shp"))
 max_flooding <- st_read("./Data/Processed/maxfloodingcorrect.shp")
+
 #determining max flooding: 3.687
 #determining least flooding: 0.012
 
+#change column names
 colnames(max_flooding) <- c("Census Tract Number","Annualized Flooding Frequency","STATEFP","COUNTYF","GEOID","NAME","Censuse Tract Name","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","White Population Percent","Black or African American Population Percent","American Indian and Alaska Native Population Percent","Cherokee Tribal Grouping Population Percent","Sioux Tribal Grouping Population Percent","Asian Population Percent","geometry")
 
-mapview(max_flooding, zcol = "Black or African American Population Percent",
-        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+#map of most flooded and Black/African American population
+mapview(max_flooding, zcol = "Black or African American Population Percent", layer.name = "% Black or African American Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
 
+#map of most flooded and White population
+mapview(max_flooding, zcol = "White Population Percent", layer.name = "% White Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
 
+#map of most flooded and Asian population
+mapview(max_flooding, zcol = "Asian Population Percent", layer.name = "% Asian Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
+
+#map of most flooded and Native American population
+mapview(max_flooding, zcol = "American Indian and Alaska Native Population Percent", layer.name = "% Native American Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
 
 ```
