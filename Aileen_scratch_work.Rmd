@@ -6,25 +6,139 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl)
+here()
 ```
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r Age & Sex Pivot Longer}
+#Creating pivot longer table for age & sex
+carteret.age.sex <- read_csv(here("./Data/Processed/Carteret.age.sex.csv"))
 
-```{r cars}
-summary(cars)
+#Seperating number and percents
+caretert.age.sex.percent <- carteret.age.sex[seq(2, nrow(carteret.age.sex), 2), ]
+caretert.age.sex.number <- carteret.age.sex[seq(1, nrow(carteret.age.sex), 2), ]
+
+colnames(carteret.age.sex)
+#Removing Median Age column b/c it is blank
+caretert.age.sex.percent <- caretert.age.sex.percent %>%
+  select(-("Median age (years)"))
+#pivoting so columns become rows
+caretert.age.sex.percent.pivot <- caretert.age.sex.percent %>%
+  pivot_longer(cols=c("Under 5 years","5 to 9 years","10 to 14 years","15 to 19 years","20 to 24 years","25 to 34 years","35 to 44 years","45 to 54 years","55 to 59 years","60 to 64 years","65 to 74 years","75 to 84 years", "85 years and over"),
+               names_to='Age',
+               values_to='Population') %>%
+  pivot_longer(cols=c("Male", "Female"),
+               names_to='Sex',
+               values_to='Percent') 
+
+write.csv(caretert.age.sex.percent.pivot,
+          file =here("./Data/Processed/Caretert.age.sex.percent.pivot.csv"))
+
+#pivoting so columns become rows
+caretert.age.sex.number.pivot <- caretert.age.sex.number %>%
+  pivot_longer(cols=c("Under 5 years","5 to 9 years","10 to 14 years","15 to 19 years","20 to 24 years","25 to 34 years","35 to 44 years","45 to 54 years","55 to 59 years","60 to 64 years","65 to 74 years","75 to 84 years", "85 years and over","Median age (years)"),
+               names_to='Age',
+               values_to='Population') %>%
+  pivot_longer(cols=c("Male", "Female"),
+               names_to='Sex',
+               values_to='Number of Individuals') 
+
+write.csv(caretert.age.sex.number.pivot,
+          file = here("./Data/Processed/Caretert.age.sex.number.pivot.csv"))
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+```{r Education Pivot Longer}
+#Creating pivot longer table for age & sex
+carteret.education <- read_csv(here("./Data/Processed/carteret.education.csv"))
+colnames(carteret.education) <- c('Data type','Census Tract','Pop. >=25 years','Less than high school graduate','High school graduate (or equivelent)','some college, associates degree','Bachelor degree or higher')
+  
+#Separating number and percents
+caretert.education.percent.belowpoverty <- carteret.education[seq(3, nrow(carteret.education), 3), ]
+caretert.education.totalestimate <- carteret.education[seq(1, nrow(carteret.education), 3), ]
+caretert.education.belowpoverty <- carteret.education[seq(2, nrow(carteret.education), 3), ]
+colnames(carteret.education)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+caretert.education.percent.belowpoverty.pivot <- caretert.education.percent.belowpoverty %>%
+  pivot_longer(cols=c('Pop. >=25 years','Less than high school graduate','High school graduate (or equivelent)','some college, associates degree','Bachelor degree or higher'),
+               names_to='Education Attainment',
+               values_to='Percent Below Poverty Line') 
+
+caretert.education.totalestimate.pivot <- caretert.education.totalestimate %>%
+  pivot_longer(cols=c('Pop. >=25 years','Less than high school graduate','High school graduate (or equivelent)','some college, associates degree','Bachelor degree or higher'),
+               names_to='Education Attainment',
+               values_to='Total Estimate') 
+
+caretert.education.belowpoverty.pivot <- caretert.education.belowpoverty %>%
+  pivot_longer(cols=c('Pop. >=25 years','Less than high school graduate','High school graduate (or equivelent)','some college, associates degree','Bachelor degree or higher'),
+               names_to='Education Attainment',
+               values_to='Total Below Poverty Line') 
+
+write.csv(caretert.education.belowpoverty.pivot,
+          file = here("./Data/Processed/caretert.education.belowpoverty.pivot.csv"))
+write.csv(caretert.education.totalestimate.pivot,
+          file = here("./Data/Processed/caretert.education.totalestimate.pivot.csv"))
+write.csv(caretert.education.percent.belowpoverty.pivot,
+          file = here("./Data/Processed/caretert.education.percent.belowpoverty.pivot.csv"))
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r Employment Pivot Longer}
+carteret.employment <- read_csv(here("./Data/Processed/Carteret.Employment.csv"))
+
+#seperate number and percents
+carteret.employment.percent.belowpoverty <- carteret.employment[seq(3, nrow(carteret.employment), 3), ]
+carteret.employment.totalestimate <- carteret.employment[seq(1, nrow(carteret.employment), 3), ]
+carteret.employment.belowpoverty <- carteret.employment[seq(2, nrow(carteret.employment), 3), ]
+colnames(carteret.employment)
+
+colnames(carteret.employment.percent.belowpoverty) <- c("Data Type","Census Tract","Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females")
+
+#pivot longer
+carteret.employment.percent.belowpoverty.pivot <- carteret.employment.percent.belowpoverty %>%
+  pivot_longer(cols=c("Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females"),
+               names_to='Category',
+               values_to='Percent of Population') 
+
+colnames(carteret.employment.totalestimate) <- c("Data Type","Census Tract","Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females")
+
+carteret.employment.totalestimate.pivot <- carteret.employment.totalestimate %>%
+  pivot_longer(cols=c("Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females"),
+               names_to='Category',
+               values_to='Population') 
+
+colnames(carteret.employment.belowpoverty) <- c("Data Type","Census Tract","Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females")
+
+carteret.employment.belowpoverty.pivot <- carteret.employment.belowpoverty %>%
+  pivot_longer(cols=c("Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females"),
+               names_to='Category',
+               values_to='Population') 
+
+
+write.csv(carteret.employment.percent.belowpoverty.pivot,
+          file = here("./Data/Processed/carteret.employment.percent.belowpoverty.pivot.csv"))
+write.csv(carteret.employment.totalestimate.pivot,
+          file = here("./Data/Processed/carteret.employment.totalestimate.pivot.csv"))
+write.csv(carteret.employment.belowpoverty.pivot,
+          file = here("./Data/Processed/carteret.employment.belowpoverty.pivot.csv"))
+```
+
+```{r Poverty Pivot Longer}
+carteret.poverty <- read_csv(here("./Data/Processed/Carteret.poverty.csv"))
+#seperate number and percents
+carteret.poverty.percent <- carteret.poverty[seq(3, nrow(carteret.poverty), 3), ]
+carteret.poverty.totalestimate <- carteret.poverty[seq(1, nrow(carteret.poverty), 3), ]
+carteret.belowpoverty <- carteret.poverty[seq(2, nrow(carteret.poverty), 3), ]
+colnames(carteret.poverty)
+
+#pivot longer
+carteret.poverty.percent.pivot <- carteret.poverty.percent %>%
+  pivot_longer(cols=c("Data Type","Census Tract","Population for Whom Poverty Status is Determined","Under 18 years","18 to 64 years","65 years and over"),
+               names_to='Category',
+               values_to='Percent of Population') 
+```
+
