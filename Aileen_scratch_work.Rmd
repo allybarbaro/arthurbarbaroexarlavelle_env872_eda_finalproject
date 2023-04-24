@@ -3,6 +3,8 @@ title: "Aileen_scratch_work"
 author: "Aileen Lavelle"
 date: "2023-04-18"
 output: pdf_document
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -210,6 +212,7 @@ mapview(flooding_merged)
 
 summary(flooding_merged$Freqncy)
 
+#selecting for max flooded tracts
 carteret.max.flooding2 <- flooding_merged[flooding_merged$TRACTCE %in% c("970401","970402","970502","970504"), ]
 
 
