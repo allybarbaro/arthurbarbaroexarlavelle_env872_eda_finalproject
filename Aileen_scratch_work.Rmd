@@ -183,3 +183,63 @@ server <- function(input,output){
 }
 shinyApp(ui=ui, server=server)
 ```
+knitr::opts_chunk$set(echo = TRUE)
+
+#Loaded packages
+library(tidyverse);library(rvest); library(ggplot2); library(lubridate); library(here)
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+library(here)
+library(tidycensus)
+library(sf)
+library(rgdal)
+library(mapview)
+library(leaflet)
+library(shiny)
+
+#Checked working directory
+here()
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+carteret.race.number<- read_csv(here("./Data/Processed/carteret.race.number.csv"))
+carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.race <- read_csv(here("./Data/Processed/Carteret.race.csv"))
+
+#separating race number and percent into two data frames
+carteret.race.number <- carteret.race[seq(1, nrow(carteret.race), 2), ]
+
+carteret.race.number <- carteret.race.number %>%
+  select("Census Tract","White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian")
+
+colnames(carteret.race.number) <-(c("TRACTCE", "White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian"))
+
+carteret.race.number$TRACTCE <- as.character(carteret.race.number$TRACTCE)
+ 
+write_csv(carteret.race.number, file = here("./Data/Processed/carteret.race.number.csv"))
+ 
+#Race percent
+carteret.race.percent <- carteret.race[seq(2, nrow(carteret.race), 2), ]
+carteret.race.percent <- carteret.race.percent %>%
+  select("Census Tract","White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian")
+
+colnames(carteret.race.percent) <-(c("TRACTCE", "White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian"))
+
+carteret.race.percent$TRACTCE <- as.character(carteret.race.percent$TRACTCE)
+
+write_csv(carteret.race.percent, file = here("./Data/Processed/carteret.race.percent.csv"))
+
+#pivoting for bar graph for laura
+caretert.group <- carteret.race.number %>%
+  pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian",),
+               names_to='Race',
+               values_to='Population')
+
+
+write_csv(caretert.group, file = here("./Data/Processed/write_csv(carteret.race.number.pivoted.csv"))
