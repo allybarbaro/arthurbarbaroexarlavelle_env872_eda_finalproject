@@ -166,7 +166,15 @@ write.csv(carteret.belowpoverty.pivot,
 
 ```{r Carteret county with demographics}
 carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+shape.and.race <- merge(carteret.shape, carteret.race.percent, by = "TRACTCE")
 
+shape.and.race <- st_transform(shape.and.race, crs = '+proj=longlat +datum=WGS84')
+
+leaflet() %>%
+  addTiles() %>%
+  setView(lng = -076.35, lat = 34.88, zoom = 14) %>%
+  addPolygons(data = shape.and.race, color = "blue", stroke = 1, opacity = 0.8)
 
 ui <- fluidPage(
   leafletOutput(outputId = "mymap")
@@ -175,71 +183,15 @@ ui <- fluidPage(
 server <- function(input,output){
   #create the map
   output$mymap <- renderLeaflet({
-    leaflet(data) %>% 
-      setView(lng = -99, lat = 45, zoom = 2)  %>% #setting the view over ~ center of North America
-      addTiles() %>% 
-      addCircles(data = data, lat = ~ latitude, lng = ~ longitude, weight = 1, radius = ~sqrt(mag)*25000, popup = ~as.character(mag), label = ~as.character(paste0("Magnitude: ", sep = " ", mag)), color = ~pal(mag), fillOpacity = 0.5)
+   leaflet() %>%
+  addTiles() %>%
+  setView(lng = -076.35, lat = 34.88, zoom = 14) %>%
+  addPolygons(data = shape.and.race, color = "blue", stroke = 1, opacity = 0.8)
+  addLegend(data = shape.and.race,
+            position = "bottomright",
+            title = "Legend",
+            opacity = 1)
   })
 }
 shinyApp(ui=ui, server=server)
 ```
-knitr::opts_chunk$set(echo = TRUE)
-
-#Loaded packages
-library(tidyverse);library(rvest); library(ggplot2); library(lubridate); library(here)
-library(tidyverse)
-library(dplyr)
-library(lubridate)
-library(here)
-library(tidycensus)
-library(sf)
-library(rgdal)
-library(mapview)
-library(leaflet)
-library(shiny)
-
-#Checked working directory
-here()
-```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-```{r}
-carteret.race.number<- read_csv(here("./Data/Processed/carteret.race.number.csv"))
-carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
-carteret.race <- read_csv(here("./Data/Processed/Carteret.race.csv"))
-
-#separating race number and percent into two data frames
-carteret.race.number <- carteret.race[seq(1, nrow(carteret.race), 2), ]
-
-carteret.race.number <- carteret.race.number %>%
-  select("Census Tract","White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian")
-
-colnames(carteret.race.number) <-(c("TRACTCE", "White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian"))
-
-carteret.race.number$TRACTCE <- as.character(carteret.race.number$TRACTCE)
- 
-write_csv(carteret.race.number, file = here("./Data/Processed/carteret.race.number.csv"))
- 
-#Race percent
-carteret.race.percent <- carteret.race[seq(2, nrow(carteret.race), 2), ]
-carteret.race.percent <- carteret.race.percent %>%
-  select("Census Tract","White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian")
-
-colnames(carteret.race.percent) <-(c("TRACTCE", "White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian"))
-
-carteret.race.percent$TRACTCE <- as.character(carteret.race.percent$TRACTCE)
-
-write_csv(carteret.race.percent, file = here("./Data/Processed/carteret.race.percent.csv"))
-
-#pivoting for bar graph for laura
-caretert.group <- carteret.race.number %>%
-  pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian",),
-               names_to='Race',
-               values_to='Population')
-
-
-write_csv(caretert.group, file = here("./Data/Processed/write_csv(carteret.race.number.pivoted.csv"))
