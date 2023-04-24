@@ -173,7 +173,45 @@ shinyApp(ui, server)
 ```
 
 
-```{r}
+```{r loading packages for Aileen's}
+#install.packages(paletteer)
+library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl);library(shinydashboard);
+library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer)
+here()
+```
+```{r working on Aileen's}
+carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
+carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+shape.and.race.number <- merge(carteret.shape, carteret.race.number, by = "TRACTCE")
+shape.and.race.percent <- merge(carteret.shape, carteret.race.percent, by = "TRACTCE")
+
+library(RColorBrewer)
+
+#white number
+mapview(shape.and.race.number, zcol = "White",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+#white percent
+mapview(shape.and.race.percent, zcol = "White",
+         col.regions=brewer.pal(9, "YlGn"))
+        
+        
+        #col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+#Black or African American number
+mapview(shape.and.race.number, zcol = "Black or African American",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+#American Indian and Alaska Native number
+mapview(shape.and.race.number, zcol = "American Indian and Alaska Native",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+#Cherokee Tribal Grouping number
+mapview(shape.and.race.number, zcol = "Cherokee Tribal Grouping",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+
 
 ```
 
