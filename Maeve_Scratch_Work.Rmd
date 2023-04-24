@@ -32,6 +32,7 @@ When you click the **Knit** button a document will be generated that includes bo
 carteret.race.number<- read_csv(here("./Data/Processed/carteret.race.number.csv"))
 carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
 carteret.race <- read_csv(here("./Data/Processed/Carteret.race.csv"))
+
 #separating race number and percent into two data frames
 carteret.race.number <- carteret.race[seq(1, nrow(carteret.race), 2), ]
 
@@ -62,16 +63,18 @@ caretert.group <- carteret.race.number %>%
                values_to='Population')
 
 
+write_csv(caretert.group, file = here("./Data/Processed/write_csv(carteret.race.number.pivoted.csv"))
+
 write_csv(caretert.group, file = here("./Data/Processed/carteret.race.number.pivoted.csv"))
 
 ```
 
 
 
-```{r}
-#map of greatest flood frequency and demographic data
-carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+```{r Reading in all data}
+read.csv("./Data/Processed/carteret.race.percent.csv")
 
+<<<<<<< HEAD
 carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
 
 #flood frequency and demographic data
@@ -124,6 +127,7 @@ output$mymap <- renderLeaflet({
 }
 shinyApp(ui, server)
   
+=======
+>>>>>>> 77377fdeda577fdc5fa14b7b02b63db27ecfb0d9
 
-```
 ```
