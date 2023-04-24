@@ -62,8 +62,6 @@ caretert.group <- carteret.race.number %>%
                values_to='Population')
 
 
-write_csv(caretert.group, file = here("./Data/Processed/write_csv(carteret.race.number.pivoted.csv"))
-
 write_csv(caretert.group, file = here("./Data/Processed/carteret.race.number.pivoted.csv"))
 
 ```
