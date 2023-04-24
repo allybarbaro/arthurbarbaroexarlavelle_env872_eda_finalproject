@@ -180,13 +180,25 @@ library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer)
 here()
 ```
 ```{r working on Aileen's}
+#loading data
 carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
 carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
 carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
 shape.and.race.number <- merge(carteret.shape, carteret.race.number, by = "TRACTCE")
 shape.and.race.percent <- merge(carteret.shape, carteret.race.percent, by = "TRACTCE")
 
-library(RColorBrewer)
+#getting rid of percent
+shape.and.race.percent$White <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$White))
+
+shape.and.race.percent$`Black or African American` <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$`Black or African American`))
+
+shape.and.race.percent$`American Indian and Alaska Native` <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$`American Indian and Alaska Native`))
+
+shape.and.race.percent$`Cherokee Tribal Grouping` <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$`Cherokee Tribal Grouping`))
+
+shape.and.race.percent$`Sioux Tribal Grouping` <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$`Sioux Tribal Grouping`))
+
+shape.and.race.percent$Asian <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$Asian))
 
 #white number
 mapview(shape.and.race.number, zcol = "White",
@@ -194,24 +206,23 @@ mapview(shape.and.race.number, zcol = "White",
 
 #white percent
 mapview(shape.and.race.percent, zcol = "White",
-         col.regions=brewer.pal(9, "YlGn"))
-        
-        
-        #col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+         col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
 
-#Black or African American number
-mapview(shape.and.race.number, zcol = "Black or African American",
+#Black or African American percent
+mapview(shape.and.race.percent, zcol = "Black or African American",
         col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
 
-#American Indian and Alaska Native number
-mapview(shape.and.race.number, zcol = "American Indian and Alaska Native",
+#American Indian and Alaska Native percent
+mapview(shape.and.race.percent, zcol = "American Indian and Alaska Native",
         col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
 
-#Cherokee Tribal Grouping number
-mapview(shape.and.race.number, zcol = "Cherokee Tribal Grouping",
+#Cherokee Tribal Grouping percent
+mapview(shape.and.race.percent, zcol = "Cherokee Tribal Grouping",
         col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
 
-
+#Asian Tribal Grouping percent
+mapview(shape.and.race.percent, zcol = "Asian",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
 
 ```
 
