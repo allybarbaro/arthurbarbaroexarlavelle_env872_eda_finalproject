@@ -7,14 +7,31 @@
 \newpage
 
 ```{r setup, include=FALSE}
-# Set your working directory
-
 # Load your packages
-
+library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl);library(shinydashboard);
+library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer);library(leafpop);library(sjPlot)
+# Set your working directory
+here()
 # Set your ggplot theme
-
+Aileentheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"),
+        axis.ticks = element_line(color = "black"), 
+        plot.background = element_rect(color= "white"))
 # Load your datasets
-
+carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+flooding.race.shape <- st_read(here("./Data/Processed/flooding.race.correct.shp"))
+carteret.employment.percent.belowpoverty <- read_csv(here('./Data/Processed/carteret.employment.percent.belowpoverty.csv'))
+carteret.poverty.percent <- read_csv(here('./Data/Processed/carteret.poverty.csv'))
+carteret.age.sex.percent <-  read_csv(here("Data/Processed/Caretert.age.sex.percent.csv"))
+carteret.education.percent <- read_csv(here("Data/Processed/caretert.education.percent.belowpoverty.csv"))
+max_flooding <- st_read(here("./Data/Processed/maxfloodingcorrect.shp"))
+combined.demographics <- read_csv(here("Data/Processed/combined.demographics.csv"))
+carteret.combined.shape <- st_read(here("./Data/Processed/carteret.combined.shape.shp"))
+carteret.combined.maxflood.shape <- st_read(here("./Data/Processed/carteret.combined.maxflood.shape.shp"))
+Carteret_Hurricanes <- read_csv(here("Data/Processed/Carteret_Hurricanes_Processed.csv"))
+carteret.combined.hurricane.shape <- st_read(here("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp"))
 ```
 
 
@@ -31,14 +48,242 @@
 \newpage
 
 # Exploratory Analysis 
+```{r Carteret county with racial demographics}
+#blank census tracts map
+m1 <- mapview(carteret.shape, zcol = "NAMELSAD", color = 'black', alpha.regions = 0, layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD")
+m1
+#All Census blocks in Cartert County
+mapview(flooding.race.shape, zcol = "NAMELSA", col.regions = paletteer_c("grDevices::Set 3", 30,), layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSA")
 
+#white Population Map
+mapview(flooding.race.shape, zcol = "White", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County White Population", label = "White Population Percent")
+
+#Black/African American Population Map
+mapview(flooding.race.shape, zcol = "Bl__A_A", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Black or African American Population Percent", label = flooding.race.shape$TRACTCE)
+
+#American Indian and Native Alaskan Population Map
+mapview(flooding.race.shape, zcol = "A_I__A_", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Native American Population Percent", label = flooding.race.shape$TRACTCE)
+
+#Asian Population Map
+mapview(flooding.race.shape, zcol = "Asian", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Asian Population Percent", label = flooding.race.shape$TRACTCE)
+
+```
 
 
 \newpage
 
 # Analysis
 
+#Map of Cartert County by Annualized Flooding Frequency
+```{r Flooding and Factors Correlations}
+#conducting correlation test
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$White)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Black.or.African.American)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Asian)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$American.Indian.and.Alaska.Native)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Cherokee.Tribal.Grouping)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Sioux.Tribal.Grouping)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$LaborForce16YearsandOver)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$PercentEmployed)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$EmployedMale)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$EmployedFemale)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Unemployed)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$UnemployedMales)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$UnemployedFemales)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`25over&belowpovertyline`)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Lessthanhighschoolgraduatebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Highschoolgraduatebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Somecollegeassociatesdegreebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Bachelorsdegreeorhigherbelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$PopulationbelowPovertyLine)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Under18belowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`18to64belowpovertyline`)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`65overbelowpovertyline`)
+#resulting p-value is < 0.05 so it is significant!
 
+#significant results (p<0.05): `65overbelowpovertyline`
+#Other small p-values (p<0.2): PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, `25over&belowpovertyline`, EmployedMale, LaborForce16YearsandOver
+```
+
+
+```{r Flooding and Factors Maps}
+#Population Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "PpltbPL", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+
+#Population over 65 & Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+
+#Percent of Carteret County Below Poverty Line and Recieved Some College Education Map
+mapview(carteret.combined.shape, zcol = "Scad.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.shape$NAMELSA)
+
+#Percent of Carteret County 25 Years and Older Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "P2yao.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+
+#Percent of Carteret County Males Below the Poverty Line and Employed Map
+mapview(carteret.combined.shape, zcol = "EmplydM", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.shape$NAMELSA)
+
+#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed Map
+mapview(carteret.combined.shape, zcol = "CLF1YaO", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.shape$NAMELSA)
+
+#determed max flooding: 3.687
+#determined least flooding: 0.012
+
+#max flooding
+mapview(carteret.combined.maxflood.shape, zcol = "AnnlzFF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Maximum Annualized Flooding In Cartert County", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
+
+#Population Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
+
+#Population over 65 & Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "X6_o_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
+
+#Percent of Carteret County Below Poverty Line and Recieved Some College Education & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "Scad_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.maxflood.shape$NAMELSA)
+
+#Percent of Carteret County 25 Years and Older Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "P2yao_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
+
+#Percent of Carteret County Males Below the Poverty Line and Employed & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
+
+#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "CLF1YaO", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
+```
+
+```{r Change carteret.combined.hurricane.shape Column Names, include=FALSE}
+#change the names back so that the correlation makes sense
+colnames(carteret.combined.hurricane.shape) <- c("TRACTCE","DataType","AnnualizedHurricaneFrequency","STATEFP","COUNTYF","GEOID","NAME","NAMELSA","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline","Bachelorsdegreeorhigherbelowpovertyline","geometry")
+```
+
+```{r Hurricane and Factors Correlation}
+#conducting hurricane correlation tests
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$White)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Black.or.African.American)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Asian)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$American.Indian.and.Alaska.Native)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Cherokee.Tribal.Grouping)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Sioux.Tribal.Grouping)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$LaborForce16YearsandOver)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$PercentEmployed)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$EmployedMale)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$EmployedFemale)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Unemployed)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$UnemployedMales)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$UnemployedFemales)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`25over&belowpovertyline`)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Lessthanhighschoolgraduatebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Highschoolgraduatebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Somecollegeassociatesdegreebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Bachelorsdegreeorhigherbelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$PopulationbelowPovertyLine)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Under18belowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`18to64belowpovertyline`)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`65overbelowpovertyline`)
+#resulting p-value is > 0.05 so it is not significant
+
+#low p vale factors (p<0.2): Under18belowpovertyline, PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, EmployedMale PercentEmployed, Asian
+```
+
+```{r Hurricane and Factors Maps}
+#Population Below Poverty Line Map
+mapview(carteret.combined.hurricane.shape, zcol = "PopulationbelowPovertyLine", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.hurricane.shape$NAMELSA) 
+
+#Population Under 18 and Below Poverty Line Map
+mapview(carteret.combined.hurricane.shape, zcol = "Under18belowpovertyline", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Population Under 18 and Below Poverty Line", label = carteret.combined.hurricane.shape$NAMELSA)
+
+#Percent of Carteret County Below Poverty Line and Received Some College Education Map
+mapview(carteret.combined.hurricane.shape, zcol = "Somecollegeassociatesdegreebelowpovertyline", col.regions = c(
+paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.hurricane.shape$NAMELSA)
+
+#Asian Population Percent of Carteret County Map
+mapview(carteret.combined.hurricane.shape, zcol = "Asian", col.regions = c(
+paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Asian Population Percent of Carteret County", label = carteret.combined.hurricane.shape$Asian)
+
+#Percent of Carteret County Males Below the Poverty Line and Employed Map
+mapview(carteret.combined.hurricane.shape, zcol = "EmployedMale", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.hurricane.shape$NAMELSA)
+
+#Percent of Carteret County Employed Map
+mapview(carteret.combined.hurricane.shape, zcol = "PercentEmployed", col.regions = c(
+paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Percent of Carteret County Below the Poverty Line and Employed", label = carteret.combined.hurricane.shape$NAMELSA)
+
+
+summary(carteret.combined.hurricane.shape$AnnlzHF)
+#determining max hurricane: 3.0792
+#determining least flooding: 0.3870
+
+#Annualized Hurricane Frequency in Carteret County Map
+mapview(carteret.combined.hurricane.shape, zcol = "AnnualizedHurricaneFrequency", col.regions = c(
+paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Annualized Hurricane Frequency in Carteret County", label = carteret.combined.hurricane.shape$NAMELSA)
+
+#filter Carteret County by Max Annualized Hurricane Frequency
+carteret.combined.maxhurricane.shape <- carteret.combined.hurricane.shape[carteret.combined.hurricane.shape$TRACTCE %in% c("971003","970903"), ]
+
+
+#Population Below Poverty Line & Max Hurricane Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "PopulationbelowPovertyLine", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Population over 65 & Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "65overbelowpovertyline", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Over 65 and Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Percent of Carteret County Below Poverty Line and Received Some College Education & Max Flooding Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "Somecollegeassociatesdegreebelowpovertyline", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line and Recieved Some College Education in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Percent of Carteret County under 18 Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "Under18belowpovertyline", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Under 18 Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Percent of Carteret County Males Below the Poverty Line and Employed & Max Flooding Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "EmployedMale", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Percent of Carteret County Employed Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "PercentEmployed", col.regions = c(
+paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below the Poverty Line and Employed in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Asian Population Percent of Carteret County Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "Asian", col.regions = c(
+paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Asian Population Percent of Carteret Countyin Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$Asian)
+```
 
 ## Question 1: <insert specific question here and add additional subsections for additional questions below, if needed>
 
