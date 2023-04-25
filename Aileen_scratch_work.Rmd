@@ -233,8 +233,11 @@ mapview(flooding.race.shape, zcol = "A_I__A_", col.regions = c(paletteer_c("ggth
 #Asian Population Map
 mapview(flooding.race.shape, zcol = "Asian", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Asian Population Percent", label = flooding.race.shape$TRACTCE)
 
+#Map of Cartert County by Annualized Flooding Frequency
+mapview(flooding.race.shape, zcol = "Freqncy", col.regions = c(paletteer_d("RColorBrewer::YlOrRd")), layer.name = "Carteret County Annualized Flooding Frequency", label = flooding.race.shape$NAMELSAD)
+
 #selecting for max flooded tracts
-carteret.max.flooding2 <- flooding_merged[flooding_merged$TRACTCE %in% c("970401","970402","970502","970504"), ]
+carteret.max.flooding2 <- flooding.race.shape[flooding.race.shape$TRACTCE %in% c("970401","970402","970502","970504"), ]
 
 #making spatial
 #st_write(carteret.max.flooding2, here("./Data/Processed/maxfloodingcorrect.shp"))
@@ -245,6 +248,7 @@ max_flooding <- st_read("./Data/Processed/maxfloodingcorrect.shp")
 
 #change column names
 colnames(max_flooding) <- c("Census Tract Number","Annualized Flooding Frequency","STATEFP","COUNTYF","GEOID","NAME","Censuse Tract Name","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","White Population Percent","Black or African American Population Percent","American Indian and Alaska Native Population Percent","Cherokee Tribal Grouping Population Percent","Sioux Tribal Grouping Population Percent","Asian Population Percent","geometry")
+
 
 #map of most flooded and Black/African American population
 mapview(max_flooding, zcol = "Black or African American Population Percent", layer.name = "% Black or African American Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
@@ -388,7 +392,6 @@ carteret.poverty.percent$TRACTCE <- as.character(carteret.poverty.percent$TRACTC
 colnames(carteret.education.percent) <- c("","Data Type","TRACTCE","Population 25 years and over & below poverty line","Less than high school graduate & below poverty line","High school graduate (includes equivalency) & below poverty line","Some college, associates degree & below poverty line","Bachelors degree or higher & below poverty line")
 carteret.education.percent$TRACTCE <- as.character(carteret.education.percent$TRACTCE)
 
-
 #merging files
 shape.flooding <- merge(carteret.flooding, carteret.shape)
 flooding.poverty.shape <- merge(shape.flooding, carteret.poverty.percent)
@@ -423,43 +426,49 @@ carteret.combined.shape$`65 & over & below poverty line` <- as.numeric(gsub("[\\
 #making spatial
 #st_write(carteret.combined.shape, here("./Data/Processed/carteret.combined.shape.shp"))
 carteret.combined.shape <- st_read("./Data/Processed/carteret.combined.shape.shp")
-colnames(flooding.race.shape)
+colnames(carteret.combined.shape)
 
-#white Population Map
-mapview(flooding.race.shape, zcol = "White", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County White Population", label = "White Population Percent")
+#Population Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "PpltbPL", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.shape$NAMELSA)
 
-#Black/African American Population Map
-mapview(flooding.race.shape, zcol = "Bl__A_A", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Black or African American Population Percent", label = flooding.race.shape$TRACTCE)
+#Population over 65 & Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.shape$NAMELSA)
 
-#American Indian and Native Alaskan Population Map
-mapview(flooding.race.shape, zcol = "A_I__A_", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Native American Population Percent", label = flooding.race.shape$TRACTCE)
+#Percent of Carteret County Below Poverty Line and Recieved Some College Education Map
+mapview(carteret.combined.shape, zcol = "Scad.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.shape$NAMELSA)
 
-#Asian Population Map
-mapview(flooding.race.shape, zcol = "Asian", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Asian Population Percent", label = flooding.race.shape$TRACTCE)
+#Percent of Carteret County 25 Years and Older Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "P2yao.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.shape$NAMELSA)
 
-#selecting for max flooded tracts
-carteret.max.flooding2 <- flooding_merged[flooding_merged$TRACTCE %in% c("970401","970402","970502","970504"), ]
+#Percent of Carteret County Males Below the Poverty Line and Employed Map
+mapview(carteret.combined.shape, zcol = "EmplydM", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.shape$NAMELSA)
 
-#making spatial
-#st_write(carteret.max.flooding2, here("./Data/Processed/maxfloodingcorrect.shp"))
-max_flooding <- st_read("./Data/Processed/maxfloodingcorrect.shp")
+#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed Map
+mapview(carteret.combined.shape, zcol = "CLF1YaO", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.shape$NAMELSA)
 
 #determining max flooding: 3.687
 #determining least flooding: 0.012
 
-#change column names
-colnames(max_flooding) <- c("Census Tract Number","Annualized Flooding Frequency","STATEFP","COUNTYF","GEOID","NAME","Censuse Tract Name","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","White Population Percent","Black or African American Population Percent","American Indian and Alaska Native Population Percent","Cherokee Tribal Grouping Population Percent","Sioux Tribal Grouping Population Percent","Asian Population Percent","geometry")
+#filter the combined data for just max flooded tracts
+carteret.combined.shape$TRACTCE <- as.character(carteret.combined.shape$TRACTCE)
+carteret.combined.maxflood.shape <- carteret.combined.shape[carteret.combined.shape$TRACTCE %in% c("970401","970402","970502","970504"), ]
+#st_write(carteret.combined.maxflood.shape, here("./Data/Processed/carteret.combined.maxflood.shape.shp"))
 
-#map of most flooded and Black/African American population
-mapview(max_flooding, zcol = "Black or African American Population Percent", layer.name = "% Black or African American Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
+#Population Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
 
-#map of most flooded and White population
-mapview(max_flooding, zcol = "White Population Percent", layer.name = "% White Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
+#Population over 65 & Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
 
-#map of most flooded and Asian population
-mapview(max_flooding, zcol = "Asian Population Percent", layer.name = "% Asian Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
+#Percent of Carteret County Below Poverty Line and Recieved Some College Education & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "Scad.bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.maxflood.shape$NAMELSA)
 
-#map of most flooded and Native American population
-mapview(max_flooding, zcol = "American Indian and Alaska Native Population Percent", layer.name = "% Native American Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
+#Percent of Carteret County 25 Years and Older Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "P2yao.bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
 
+#Percent of Carteret County Males Below the Poverty Line and Employed & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
+
+#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "CLF1YaO", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
 ```
