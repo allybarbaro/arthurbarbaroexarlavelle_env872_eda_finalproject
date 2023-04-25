@@ -142,7 +142,7 @@ write.csv(carteret.employment.belowpoverty.pivot,
           file = here("./Data/Processed/carteret.employment.belowpoverty.pivot.csv"))
 ```
 
-```{r Poverty Pivot Longer, echo=FALSE}
+```{r Poverty Pivot Longer}
 carteret.poverty <- read_csv(here("./Data/Processed/Carteret.poverty.csv"))
 
 #seperate number and percents
@@ -180,21 +180,8 @@ write.csv(carteret.belowpoverty.pivot,
           file = here("./Data/Processed/carteret.belowpoverty.pivot.csv"))
 ```
 
-```{r Carteret county with demographics, echo=FALSE}
-carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
-#mapview(shape.and.race, zcol = "White",
-        #col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
-
-carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
-shape.and.race <- merge(carteret.shape, carteret.race.number, by = "TRACTCE")
-
-m1 <- mapview(shape.and.race, zcol = "NAMELSAD", col.regions = paletteer_c("grDevices::Set 3", 30,), layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD", popup = popupTable(shape.and.race$NAMELSAD))
-m1
-```
-
-
-```{r Joining flooding data, race data, and shapefile}
-#loading in required data
+```{r Carteret county with demographics}
+#loading required data
 carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
 carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
 carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
@@ -221,6 +208,9 @@ flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$A
 flooding.race.shape <- st_read("./Data/Processed/flooding.race.correct.shp")
 colnames(flooding.race.shape)
 
+#All Census blocks in Cartert County
+mapview(shape.and.race, zcol = "NAMELSAD", col.regions = paletteer_c("grDevices::Set 3", 30,), layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD")
+
 #white Population Map
 mapview(flooding.race.shape, zcol = "White", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County White Population", label = "White Population Percent")
 
@@ -232,6 +222,37 @@ mapview(flooding.race.shape, zcol = "A_I__A_", col.regions = c(paletteer_c("ggth
 
 #Asian Population Map
 mapview(flooding.race.shape, zcol = "Asian", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Asian Population Percent", label = flooding.race.shape$TRACTCE)
+
+```
+
+
+```{r Caretert County & Racial Population by tract }
+#loading in required data
+carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.flooding) <-(c("TRACTCE", "Frequency"))
+carteret.flooding$TRACTCE <- as.character(carteret.flooding$TRACTCE)
+
+#merging files
+shape.flooding <- merge(carteret.flooding, carteret.shape)
+flooding.race.shape <- merge(shape.flooding, carteret.race.percent)
+colnames(flooding.race.shape)
+
+#getting rid of % symbol
+flooding.race.shape$White <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$White))
+flooding.race.shape$Black.or.African.American <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Black.or.African.American))
+flooding.race.shape$American.Indian.and.Alaska.Native <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$American.Indian.and.Alaska.Native))
+flooding.race.shape$Cherokee.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Cherokee.Tribal.Grouping))
+flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Sioux.Tribal.Grouping))
+flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
+
+#making spatial
+#st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shape.shp"))
+flooding.race.shape <- st_read("./Data/Processed/flooding.race.correct.shp")
+colnames(flooding.race.shape)
 
 #Map of Cartert County by Annualized Flooding Frequency
 mapview(flooding.race.shape, zcol = "Freqncy", col.regions = c(paletteer_d("RColorBrewer::YlOrRd")), layer.name = "Carteret County Annualized Flooding Frequency", label = flooding.race.shape$NAMELSAD)
@@ -261,10 +282,9 @@ mapview(max_flooding, zcol = "Asian Population Percent", layer.name = "% Asian P
 
 #map of most flooded and Native American population
 mapview(max_flooding, zcol = "American Indian and Alaska Native Population Percent", layer.name = "% Native American Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
-
 ```
 
-```{r Carteret county Flooding Correlation, echo=FALSE}
+```{r Carteret County Race & Max Flooding & correlation tests}
 #loading in required data
 carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
 carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
@@ -376,7 +396,7 @@ cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`
 #Other small p-values (p<0.2): PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, `25over&belowpovertyline`, EmployedMale, LaborForce16YearsandOver
 ```
 
-```{r Joining flooding data, poverty, and shapefile}
+```{r Mapping Significant Factors}
 #loading in required data
 carteret.employment.percent.belowpoverty <- read_csv(here('./Data/Processed/carteret.employment.percent.belowpoverty.csv'))
 carteret.poverty.percent <- read_csv(here('./Data/Processed/carteret.poverty.csv'))
@@ -535,56 +555,58 @@ carteret.combined.hurricane.shape$Cherokee.Tribal.Grouping <- as.numeric(gsub("[
 carteret.combined.hurricane.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$Sioux.Tribal.Grouping))
 carteret.combined.hurricane.shape$Asian <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$Asian))
 
-colnames(carteret.combined.hurricane.shape) <- c("TRACTCE","DataType","AnnualizedHurricaneFrequency","STATEFP","COUNTYF","GEOID","NAME","NAMELSA","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","geometry","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline", "Bachelorsdegreeorhigherbelowpovertyline")
 
 #making spatial
 #st_write(carteret.combined.hurricane.shape, here("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp"))
 carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
 
+#change the names back so that the correlation makes sense
+colnames(carteret.combined.hurricane.shape) <- c("TRACTCE","DataType","AnnualizedHurricaneFrequency","STATEFP","COUNTYF","GEOID","NAME","NAMELSA","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline","Bachelorsdegreeorhigherbelowpovertyline","geometry")
+
 #conducting hurricane correlation tests
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$White)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$White)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Black.or.African.American)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Black.or.African.American)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Asian)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Asian)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$American.Indian.and.Alaska.Native)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$American.Indian.and.Alaska.Native)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Cherokee.Tribal.Grouping)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Cherokee.Tribal.Grouping)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Sioux.Tribal.Grouping)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Sioux.Tribal.Grouping)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$LaborForce16YearsandOver)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$LaborForce16YearsandOver)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$PercentEmployed)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$PercentEmployed)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$EmployedMale)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$EmployedMale)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$EmployedFemale)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$EmployedFemale)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Unemployed)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Unemployed)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$UnemployedMales)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$UnemployedMales)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$UnemployedFemales)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$UnemployedFemales)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$`25over&belowpovertyline`)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`25over&belowpovertyline`)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Lessthanhighschoolgraduatebelowpovertyline)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Lessthanhighschoolgraduatebelowpovertyline)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Highschoolgraduatebelowpovertyline)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Highschoolgraduatebelowpovertyline)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Somecollegeassociatesdegreebelowpovertyline)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Somecollegeassociatesdegreebelowpovertyline)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Bachelorsdegreeorhigherbelowpovertyline)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Bachelorsdegreeorhigherbelowpovertyline)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$PopulationbelowPovertyLine)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$PopulationbelowPovertyLine)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Under18belowpovertyline)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Under18belowpovertyline)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$`18to64belowpovertyline`)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`18to64belowpovertyline`)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$`65overbelowpovertyline`)
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`65overbelowpovertyline`)
 #resulting p-value is > 0.05 so it is not significant
 
 #low p vale factors (p<0.2): Under18belowpovertyline, PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, EmployedMale PercentEmployed, Asian, 
