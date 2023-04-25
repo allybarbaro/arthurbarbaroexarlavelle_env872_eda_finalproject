@@ -343,10 +343,10 @@ combined.demographics$`Under 18 & below poverty line` <- as.numeric(gsub("[\\%,]
 combined.demographics$`18-64 & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`18-64 & below poverty line`))
 combined.demographics$`65 & over & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`65 & over & below poverty line`))
 
-#cleanign column names
+#cleaning column names
 colnames(combined.demographics) <- c("TRACTCE", "AnnualizedFloodFrequency","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline", "Bachelorsdegreeorhigherbelowpovertyline","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline")
 
-#conducting 
+#conducting correlation test
 cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$White)
 #resulting p-value is > 0.05 so it is not significant
 cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Black.or.African.American)
@@ -474,6 +474,10 @@ mapview(carteret.combined.shape, zcol = "CLF1YaO", col.regions = c(paletteer_c("
 carteret.combined.shape$TRACTCE <- as.character(carteret.combined.shape$TRACTCE)
 carteret.combined.maxflood.shape <- carteret.combined.shape[carteret.combined.shape$TRACTCE %in% c("970401","970402","970502","970504"), ]
 #st_write(carteret.combined.maxflood.shape, here("./Data/Processed/carteret.combined.maxflood.shape.shp"))
+colnames(carteret.combined.maxflood.shape)
+
+#max flooding
+mapview(carteret.combined.maxflood.shape, zcol = "AnnlzFF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Maximum Annualized Flooding In Cartert County", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
 
 #Population Below Poverty Line & Max Flooding Map
 mapview(carteret.combined.maxflood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
@@ -664,8 +668,8 @@ mapview(carteret.combined.maxhurricane.shape, zcol = "X65vrblw", col.regions = c
 #Percent of Carteret County Below Poverty Line and Received Some College Education & Max Flooding Map
 mapview(carteret.combined.maxhurricane.shape, zcol = "Smcllgs", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line and Recieved Some College Education in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
 
-#Percent of Carteret County 25 Years and Older Below Poverty Line & Max Flooding Map
-mapview(carteret.combined.maxhurricane.shape, zcol = "X25vr.bl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population 25 Years and Older Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+#Percent of Carteret County under 18 Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "Undr18b", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Under 18 Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
 
 #Percent of Carteret County Males Below the Poverty Line and Employed & Max Flooding Map
 mapview(carteret.combined.maxhurricane.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
