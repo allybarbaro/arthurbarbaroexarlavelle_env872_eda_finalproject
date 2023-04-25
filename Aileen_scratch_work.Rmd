@@ -9,7 +9,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl);library(shinydashboard);
-library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer);library(leafpop)
+library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer);library(leafpop);library(sjPlot)
 here()
 #setting my own theme
 Aileentheme <- theme_classic(base_size = 14) +
@@ -41,6 +41,8 @@ caretert.age.sex.percent.pivot <- caretert.age.sex.percent %>%
   pivot_longer(cols=c("Male", "Female"),
                names_to='Sex',
                values_to='Percent') 
+write.csv(caretert.age.sex.percent,
+          file =here("./Data/Processed/Caretert.age.sex.percent.csv"))
 
 write.csv(caretert.age.sex.percent.pivot,
           file =here("./Data/Processed/Caretert.age.sex.percent.pivot.csv"))
@@ -69,6 +71,9 @@ caretert.education.percent.belowpoverty <- carteret.education[seq(3, nrow(carter
 caretert.education.totalestimate <- carteret.education[seq(1, nrow(carteret.education), 3), ]
 caretert.education.belowpoverty <- carteret.education[seq(2, nrow(carteret.education), 3), ]
 colnames(carteret.education)
+
+write.csv(caretert.education.percent.belowpoverty,
+          file = here("./Data/Processed/caretert.education.percent.belowpoverty.csv"))
 
 caretert.education.percent.belowpoverty.pivot <- caretert.education.percent.belowpoverty %>%
   pivot_longer(cols=c('Pop. >=25 years','Less than high school graduate','High school graduate (or equivelent)','some college, associates degree','Bachelor degree or higher'),
@@ -126,6 +131,8 @@ carteret.employment.belowpoverty.pivot <- carteret.employment.belowpoverty %>%
                names_to='Category',
                values_to='Population') 
 
+write.csv(carteret.employment.percent.belowpoverty,
+          file = here("./Data/Processed/carteret.employment.percent.belowpoverty.csv"))
 
 write.csv(carteret.employment.percent.belowpoverty.pivot,
           file = here("./Data/Processed/carteret.employment.percent.belowpoverty.pivot.csv"))
@@ -144,6 +151,8 @@ carteret.poverty.totalestimate <- carteret.poverty[seq(1, nrow(carteret.poverty)
 carteret.belowpoverty <- carteret.poverty[seq(2, nrow(carteret.poverty), 3), ]
 colnames(carteret.poverty)
 
+write.csv(carteret.poverty.percent,
+          file = here("./Data/Processed/carteret.poverty.percent.csv"))
 #pivot longer
 carteret.poverty.percent.pivot <- carteret.poverty.percent %>%
   mutate(across(c("Census Tract"), as.numeric)) %>%
@@ -255,26 +264,84 @@ mapview(max_flooding, zcol = "American Indian and Alaska Native Population Perce
 #loading in required data
 carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
 carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
-carteret.employment.percent.belowpoverty.pivot <- read_csv(here('./Data/Processed/carteret.employment.percent.belowpoverty.pivot.csv'))
-carteret.poverty.percent.pivot <- read_csv(here('./Data/Processed/carteret.poverty.percent.pivot.csv'))
-carteret.age.sex.percent.pivot <-  read_csv("Data/Processed/Caretert.age.sex.percent.pivot.csv")
-carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+carteret.employment.percent.belowpoverty <- read_csv(here('./Data/Processed/carteret.employment.percent.belowpoverty.csv'))
+carteret.poverty.percent <- read_csv(here('./Data/Processed/carteret.poverty.csv'))
+carteret.age.sex.percent <-  read_csv(here("Data/Processed/Caretert.age.sex.percent.csv"))
+carteret.shape <- st_read(here('Data/Processed/carteret_tracts.shp'))
+carteret.education.percent <- read_csv(here("Data/Processed/caretert.education.percent.belowpoverty.csv"))
 
 #change column names for flooding so that "TRACTCE" is in common
-colnames(carteret.employment.percent.belowpoverty.pivot) <- c("","Data Type","TRACTCE","Category","Percent of Population Employed")
-carteret.employment.percent.belowpoverty.pivot$TRACTCE <- as.character(carteret.employment.percent.belowpoverty.pivot$TRACTCE)
-colnames(carteret.poverty.percent.pivot) <- c("","Data Type","TRACTCE","Category","Percent of Population")
-carteret.poverty.percent.pivot$TRACTCE <- as.character(carteret.poverty.percent.pivot$TRACTCE)
-colnames(carteret.age.sex.percent.pivot)<- c("","Data Type","TRACTCE","Age","Population","Sex","Percent")
-carteret.age.sex.percent.pivot$TRACTCE <- as.character(carteret.age.sex.percent.pivot$TRACTCE)
+colnames(carteret.flooding) <- c("TRACTCE","Annualized Flood Frequency")
+colnames(carteret.employment.percent.belowpoverty) <- c("","Data Type","TRACTCE","Civilian Labor Force 16 Years and Over","Percent of Population Employed","Employed Male","Employed Female","Unemployed","Unemployed Males","Unemployed Females")
+carteret.employment.percent.belowpoverty$TRACTCE <- as.character(carteret.employment.percent.belowpoverty$TRACTCE)
+colnames(carteret.poverty.percent) <- c("Data Type","TRACTCE","Population below Poverty Line","Under 18 & below poverty line", "18-64 & below poverty line", "65 & over & below poverty line")
+carteret.poverty.percent$TRACTCE <- as.character(carteret.poverty.percent$TRACTCE)
+colnames(carteret.age.sex.percent) <- c("","Data Type","TRACTCE","Male","Female","Under 5 years","5 to 9 years","10 to 14 years","15 to 19 years","20 to 24 years","25 to 34 years","35 to 44 years","45 to 54 years","55 to 59 years","60 to 64 years","65 to 74 years","75 to 84 years","85 years and over")
+carteret.age.sex.percent$TRACTCE <- as.character(carteret.age.sex.percent$TRACTCE)
+colnames(carteret.education.percent) <- c("","Data Type","TRACTCE","Population 25 years and over & below poverty line","Less than high school graduate & below poverty line","High school graduate (includes equivalency) & below poverty line","Some college, associates degree & below poverty line","Bachelors degree or higher & below poverty line")
+carteret.education.percent$TRACTCE <- as.character(carteret.education.percent$TRACTCE)
 
 #merging files
 race.flooding <- merge(carteret.flooding, carteret.race.percent)
-flooding.race.employment <- merge(race.flooding, carteret.employment.percent.belowpoverty.pivot)
-education.flood.race.employment
-combined.demographics <- merge(flooding.race.employment.shape, carteret.age.sex.percent.pivot)
+flooding.race.employment <- merge(race.flooding, carteret.employment.percent.belowpoverty)
+education.flood.race.employment <- merge(flooding.race.employment, carteret.education.percent)
+#sex.age.education.flood.race.employment <- merge(education.flood.race.employment, carteret.age.sex.percent.pivot)
+combined.demographics <- merge(education.flood.race.employment, carteret.poverty.percent)
 
-x <- glm(formula = combined.demographics ~ NEAR_DIST + Key + Floors + Year, family= "binomial", data = TurtleDeps)
+colnames(carteret.race.percent)
+#cleaning file
+colnames(combined.demographics) 
+combined.demographics <- combined.demographics %>%
+  select("TRACTCE","Annualized Flood Frequency","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","Civilian Labor Force 16 Years and Over","Percent of Population Employed","Employed Male","Employed Female","Unemployed","Unemployed Males","Unemployed Females","Population 25 years and over & below poverty line","Less than high school graduate & below poverty line","High school graduate (includes equivalency) & below poverty line","Some college, associates degree & below poverty line","Bachelors degree or higher & below poverty line","Population below Poverty Line","Under 18 & below poverty line", "18-64 & below poverty line", "65 & over & below poverty line")
+
+#getting rid of % symbol
+combined.demographics$White <- as.numeric(gsub("[\\%,]", "", combined.demographics$White))
+combined.demographics$Black.or.African.American <- as.numeric(gsub("[\\%,]", "", combined.demographics$Black.or.African.American))
+combined.demographics$American.Indian.and.Alaska.Native <- as.numeric(gsub("[\\%,]", "", combined.demographics$American.Indian.and.Alaska.Native))
+combined.demographics$Cherokee.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", combined.demographics$Cherokee.Tribal.Grouping))
+combined.demographics$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", combined.demographics$Sioux.Tribal.Grouping))
+combined.demographics$Asian <- as.numeric(gsub("[\\%,]", "", combined.demographics$Asian))
+combined.demographics$`Civilian Labor Force 16 Years and Over` <- as.numeric(gsub("[\\%,]", "",combined.demographics$`Civilian Labor Force 16 Years and Over`))
+combined.demographics$`Percent of Population Employed` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Percent of Population Employed`))
+combined.demographics$`Employed Male` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Employed Male`))
+combined.demographics$`Employed Female` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Employed Female`))
+combined.demographics$`Unemployed` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Unemployed`))
+combined.demographics$`Unemployed Males` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Unemployed Males`))
+combined.demographics$`Unemployed Females` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Unemployed Females`))
+combined.demographics$`Population 25 years and over & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Population 25 years and over & below poverty line`))
+combined.demographics$`Less than high school graduate & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Less than high school graduate & below poverty line`))
+combined.demographics$`Less than high school graduate & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Less than high school graduate & below poverty line`))
+combined.demographics$`High school graduate (includes equivalency) & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`High school graduate (includes equivalency) & below poverty line`))
+combined.demographics$`Some college, associates degree & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Some college, associates degree & below poverty line`))
+combined.demographics$`Bachelors degree or higher & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Bachelors degree or higher & below poverty line`))
+combined.demographics$`Population below Poverty Line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Population below Poverty Line`))
+combined.demographics$`Under 18 & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Under 18 & below poverty line`))
+combined.demographics$`18-64 & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`18-64 & below poverty line`))
+combined.demographics$`65 & over & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`65 & over & below poverty line`))
+
+#GLM Time
+colnames(combined.demographics) <- c("TRACTCE", "AnnualizedFloodFrequency","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline", "Bachelorsdegreeorhigherbelowpovertyline","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline")
+
+x <- glm(formula = AnnualizedFloodFrequency ~ White + Black.or.African.American + American.Indian.and.Alaska.Native + Cherokee.Tribal.Grouping + Sioux.Tribal.Grouping + Asian + LaborForce16YearsandOver + PercentEmployed + EmployedMale + EmployedFemale + Unemployed + UnemployedMales + UnemployedFemales + `25over&belowpovertyline` + Lessthanhighschoolgraduatebelowpovertyline + Highschoolgraduatebelowpovertyline + Somecollegeassociatesdegreebelowpovertyline + Bachelorsdegreeorhigherbelowpovertyline + PopulationbelowPovertyLine + Under18belowpovertyline + `18to64belowpovertyline` + `65overbelowpovertyline`, family= 'gaussian', data = combined.demographics)
 summary(x)
-tab_model(x)
+plot(x)
+
+x2 <- glm(formula = Frequency ~ White + Black.or.African.American + Asian  + `Percent of Population`, family= 'gaussian', data = combined.demographics)
+summary(x2)
+plot(x2)
+
+x3 <- glm(formula = Frequency ~ American.Indian.and.Alaska.Native + Cherokee.Tribal.Grouping + Sioux.Tribal.Grouping + `Percent of Population Employed` + `Age Population`, family= 'gaussian', data = combined.demographics)
+summary(x3)
+plot(x3)
+
+x4 <- glm(formula = Frequency ~ White + Black.or.African.American + American.Indian.and.Alaska.Native + Asian + `Percent of Population Employed` + `Percent of Population`, family= 'gaussian', data = combined.demographics)
+summary(x4)
+plot(x4)
+
+plot_model(x, type='pred', terms= "Percent of Population Employed", data = combined.demographics) +
+  labs(
+    title = "Probability of Annualized Flooding Frequency",
+    x= "Percent of Population Below Poverty Line",
+    y= "Annualized Flooding Frequency") +
+  Aileentheme
 ```
