@@ -297,4 +297,55 @@ mapview(shape.and.race.percent, zcol = "Asian",
 
 ```
 
+```{r min flooding}
+#reading in flooding frequency data
+carteret.combined.shape <- st_read("./Data/Processed/carteret.combined.shape.shp")
+
+#determine min flooding tracts numbers
+
+
+#important graphs
+#65 and over & below poverty line
+
+
+#PopulationbelowPovertyLine
+
+
+#Somecollegeassociatesdegreebelowpovertyline
+
+
+#25over&belowpovertyline`
+
+
+#EmployedMal3
+
+
+#LaborForce16YearsandOver
+
+
+
+
+
+```
+```{r hurricane graphs}
+carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
+
+#determine min flooding tracts numbers
+
+
+#important graphs
+
+#Under 18 below poverty line, 
+
+
+#Population below Poverty Line, 
+
+
+#Some college associates degree below poverty line, 
+
+
+#Employed Male Percent Employed, Asian 
+
+
+```
 
