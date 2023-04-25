@@ -542,55 +542,57 @@ colnames(carteret.combined.hurricane.shape) <- c("TRACTCE","DataType","Annualize
 carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
 
 #conducting hurricane correlation tests
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$White)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$White)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Black.or.African.American)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Black.or.African.American)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Asian)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Asian)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$American.Indian.and.Alaska.Native)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$American.Indian.and.Alaska.Native)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Cherokee.Tribal.Grouping)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Cherokee.Tribal.Grouping)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Sioux.Tribal.Grouping)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Sioux.Tribal.Grouping)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$LaborForce16YearsandOver)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$LaborForce16YearsandOver)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$PercentEmployed)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$PercentEmployed)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$EmployedMale)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$EmployedMale)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$EmployedFemale)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$EmployedFemale)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Unemployed)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Unemployed)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$UnemployedMales)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$UnemployedMales)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$UnemployedFemales)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$UnemployedFemales)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`25over&belowpovertyline`)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$`25over&belowpovertyline`)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Lessthanhighschoolgraduatebelowpovertyline)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Lessthanhighschoolgraduatebelowpovertyline)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Highschoolgraduatebelowpovertyline)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Highschoolgraduatebelowpovertyline)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Somecollegeassociatesdegreebelowpovertyline)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Somecollegeassociatesdegreebelowpovertyline)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Bachelorsdegreeorhigherbelowpovertyline)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Bachelorsdegreeorhigherbelowpovertyline)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$PopulationbelowPovertyLine)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$PopulationbelowPovertyLine)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Under18belowpovertyline)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$Under18belowpovertyline)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`18to64belowpovertyline`)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$`18to64belowpovertyline`)
 #resulting p-value is > 0.05 so it is not significant
-cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`65overbelowpovertyline`)
+cor.test(carteret.combined.hurricane.shape$AnnlzHF, carteret.combined.hurricane.shape$`65overbelowpovertyline`)
 #resulting p-value is > 0.05 so it is not significant
 
 #low p vale factors (p<0.2): Under18belowpovertyline, PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, EmployedMale PercentEmployed, Asian, 
+
+
 ```
 
-```{r Carteret county Hurricane Maps, echo=FALSE}
+```{r Carteret County Hurricane Maps, echo=FALSE}
 #making spatial
 #st_write(carteret.combined.hurricane.shape, here("./Data/Processed/carteret.combined.hurricane.shape.shp"))
 carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
