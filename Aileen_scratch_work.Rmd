@@ -217,7 +217,7 @@ flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flood
 flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
 
 #making spatial
-st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shape.shp"))
+#st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shape.shp"))
 flooding.race.shape <- st_read("./Data/Processed/flooding.race.correct.shp")
 colnames(flooding.race.shape)
 
@@ -319,29 +319,52 @@ combined.demographics$`Under 18 & below poverty line` <- as.numeric(gsub("[\\%,]
 combined.demographics$`18-64 & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`18-64 & below poverty line`))
 combined.demographics$`65 & over & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`65 & over & below poverty line`))
 
-#GLM Time
+#cleanign column names
 colnames(combined.demographics) <- c("TRACTCE", "AnnualizedFloodFrequency","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline", "Bachelorsdegreeorhigherbelowpovertyline","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline")
 
-x <- glm(formula = AnnualizedFloodFrequency ~ White + Black.or.African.American + American.Indian.and.Alaska.Native + Cherokee.Tribal.Grouping + Sioux.Tribal.Grouping + Asian + LaborForce16YearsandOver + PercentEmployed + EmployedMale + EmployedFemale + Unemployed + UnemployedMales + UnemployedFemales + `25over&belowpovertyline` + Lessthanhighschoolgraduatebelowpovertyline + Highschoolgraduatebelowpovertyline + Somecollegeassociatesdegreebelowpovertyline + Bachelorsdegreeorhigherbelowpovertyline + PopulationbelowPovertyLine + Under18belowpovertyline + `18to64belowpovertyline` + `65overbelowpovertyline`, family= 'gaussian', data = combined.demographics)
-summary(x)
-plot(x)
-
-x2 <- glm(formula = Frequency ~ White + Black.or.African.American + Asian  + `Percent of Population`, family= 'gaussian', data = combined.demographics)
-summary(x2)
-plot(x2)
-
-x3 <- glm(formula = Frequency ~ American.Indian.and.Alaska.Native + Cherokee.Tribal.Grouping + Sioux.Tribal.Grouping + `Percent of Population Employed` + `Age Population`, family= 'gaussian', data = combined.demographics)
-summary(x3)
-plot(x3)
-
-x4 <- glm(formula = Frequency ~ White + Black.or.African.American + American.Indian.and.Alaska.Native + Asian + `Percent of Population Employed` + `Percent of Population`, family= 'gaussian', data = combined.demographics)
-summary(x4)
-plot(x4)
-
-plot_model(x, type='pred', terms= "Percent of Population Employed", data = combined.demographics) +
-  labs(
-    title = "Probability of Annualized Flooding Frequency",
-    x= "Percent of Population Below Poverty Line",
-    y= "Annualized Flooding Frequency") +
-  Aileentheme
+#conducting 
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$White)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Black.or.African.American)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Asian)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$American.Indian.and.Alaska.Native)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Cherokee.Tribal.Grouping)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Sioux.Tribal.Grouping)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$LaborForce16YearsandOver)
+#resulting p-value is < 0.5 so it is significant!
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$PercentEmployed)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$EmployedMale)
+#resulting p-value is < 0.5 so it is significant!
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$EmployedFemale)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Unemployed)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$UnemployedMales)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$UnemployedFemales)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`25over&belowpovertyline`)
+#resulting p-value is < 0.5 so it is significant!
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Lessthanhighschoolgraduatebelowpovertyline)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Highschoolgraduatebelowpovertyline)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Somecollegeassociatesdegreebelowpovertyline)
+#resulting p-value is < 0.5 so it is significant!
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Bachelorsdegreeorhigherbelowpovertyline)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$PopulationbelowPovertyLine)
+#resulting p-value is < 0.5 so it is significant!
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Under18belowpovertyline)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`18to64belowpovertyline`)
+#resulting p-value is > 0.5 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`65overbelowpovertyline`)
+#resulting p-value is < 0.5 so it is significant!
 ```
