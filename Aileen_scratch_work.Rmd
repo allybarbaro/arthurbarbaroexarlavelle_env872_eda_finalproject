@@ -367,4 +367,6 @@ cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`
 #resulting p-value is > 0.5 so it is not significant
 cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`65overbelowpovertyline`)
 #resulting p-value is < 0.5 so it is significant!
+
+#significant results: `65overbelowpovertyline`, PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, `25over&belowpovertyline`, EmployedMale, LaborForce16YearsandOver
 ```
