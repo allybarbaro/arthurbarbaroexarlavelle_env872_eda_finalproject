@@ -410,7 +410,7 @@ carteret.combined.shape$`Percent of Population Employed` <- as.numeric(gsub("[\\
 carteret.combined.shape$`Employed Male` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Employed Male`))
 carteret.combined.shape$`Employed Female` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Employed Female`))
 carteret.combined.shape$`Unemployed` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Unemployed`))
-carteret.combined.shape$`Unemployed Males` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shapes$`Unemployed Males`))
+carteret.combined.shape$`Unemployed Males` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Unemployed Males`))
 carteret.combined.shape$`Unemployed Females` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Unemployed Females`))
 carteret.combined.shape$`Population 25 years and over & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Population 25 years and over & below poverty line`))
 carteret.combined.shape$`Less than high school graduate & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Less than high school graduate & below poverty line`))
@@ -456,7 +456,11 @@ carteret.combined.maxflood.shape <- carteret.combined.shape[carteret.combined.sh
 #st_write(carteret.combined.maxflood.shape, here("./Data/Processed/carteret.combined.maxflood.shape.shp"))
 
 #Population Below Poverty Line & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
+mapview(carteret.combined.maxflood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
+
+#blank census tracts map
+m1 <- mapview(carteret.shape, zcol = "NAMELSAD", color = 'black', alpha.regions = 0, layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD")
+m1
 
 #Population over 65 & Below Poverty Line & Max Flooding Map
 mapview(carteret.combined.maxflood.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
@@ -613,31 +617,42 @@ mapview(carteret.combined.hurricane.shape, zcol = "EmplydM", col.regions = c(pal
 
 #Percent of Carteret County Employed Map
 mapview(carteret.combined.hurricane.shape, zcol = "PrcntEm", col.regions = c(
-paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Percent of Carteret Below the Poverty Line and Employed", label = carteret.combined.hurricane.shape$NAMELSA)
+paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Percent of Carteret County Below the Poverty Line and Employed", label = carteret.combined.hurricane.shape$NAMELSA)
 
-#determining max flooding: 3.687
-#determining least flooding: 0.012
 
-#filter the combined data for just max flooded tracts
-carteret.combined.shape$TRACTCE <- as.character(carteret.combined.shape$TRACTCE)
-carteret.combined.maxflood.shape <- carteret.combined.shape[carteret.combined.shape$TRACTCE %in% c("970401","970402","970502","970504"), ]
-#st_write(carteret.combined.maxflood.shape, here("./Data/Processed/carteret.combined.maxflood.shape.shp"))
+summary(carteret.combined.hurricane.shape$AnnlzHF)
+#determining max hurricane: 3.0792
+#determining least flooding: 0.3870
 
-#Population Below Poverty Line & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
+#Annualized Hurricane Frequency in Carteret County Map
+mapview(carteret.combined.hurricane.shape, zcol = "AnnlzHF", col.regions = c(
+paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Annualized Hurricane Frequency in Carteret County", label = carteret.combined.hurricane.shape$NAMELSA)
+
+#filter Carteret County by Max Annualized Hurricane Frequency
+carteret.combined.maxhurricane.shape <- carteret.combined.hurricane.shape[carteret.combined.hurricane.shape$TRACTCE %in% c("971003","970903"), ]
+#st_write(carteret.combined.hurricane.shape, here("./Data/Processed/carteret.combined.maxhurricane.shape.shp"))
+
+
+#Population Below Poverty Line & Max Hurricane Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "PpltnPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
 
 #Population over 65 & Below Poverty Line & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
+mapview(carteret.combined.maxhurricane.shape, zcol = "X65vrblw", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Over 65 and Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
 
-#Percent of Carteret County Below Poverty Line and Recieved Some College Education & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "Scad.bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.maxflood.shape$NAMELSA)
+#Percent of Carteret County Below Poverty Line and Received Some College Education & Max Flooding Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "Smcllgs", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line and Recieved Some College Education in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
 
 #Percent of Carteret County 25 Years and Older Below Poverty Line & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "P2yao.bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
+mapview(carteret.combined.maxhurricane.shape, zcol = "X25vr.bl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population 25 Years and Older Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
 
 #Percent of Carteret County Males Below the Poverty Line and Employed & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
+mapview(carteret.combined.maxhurricane.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
 
-#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "CLF1YaO", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
+#Percent of Carteret County Employed Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "PrcntEm", col.regions = c(
+paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below the Poverty Line and Employed in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Asian Population Percent of Carteret County Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "Asian", col.regions = c(
+paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Asian Population Percent of Carteret Countyin Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$Asian)
 ```
