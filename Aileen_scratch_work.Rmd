@@ -498,7 +498,7 @@ mapview(carteret.combined.maxflood.shape, zcol = "EmplydM", col.regions = c(pale
 mapview(carteret.combined.maxflood.shape, zcol = "CLF1YaO", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
 ```
 
-```{r Carteret county Hurricane Correlation, echo=FALSE}
+```{r Factors & Carteret County Hurricane Correlation}
 #loading in required data
 Carteret_Hurricanes <- read_csv("Data/Processed/Carteret_Hurricanes_Processed.csv")
 carteret.employment.percent.belowpoverty <- read_csv(here('./Data/Processed/carteret.employment.percent.belowpoverty.csv'))
@@ -609,12 +609,10 @@ cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, cartere
 cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`65overbelowpovertyline`)
 #resulting p-value is > 0.05 so it is not significant
 
-#low p vale factors (p<0.2): Under18belowpovertyline, PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, EmployedMale PercentEmployed, Asian, 
-
-
+#low p vale factors (p<0.2): Under18belowpovertyline, PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, EmployedMale PercentEmployed, Asian
 ```
 
-```{r Carteret County Hurricane Maps, echo=FALSE}
+```{r Significant Factors & Hurricane Maps}
 #making spatial
 #st_write(carteret.combined.hurricane.shape, here("./Data/Processed/carteret.combined.hurricane.shape.shp"))
 carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
