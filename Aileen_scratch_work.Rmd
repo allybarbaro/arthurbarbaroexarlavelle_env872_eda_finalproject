@@ -483,6 +483,7 @@ carteret.education.percent <- read_csv(here("Data/Processed/caretert.education.p
 carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
 carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
 colnames(carteret.race.percent)
+
 #change column names for flooding so that "TRACTCE" is in common
 colnames(Carteret_Hurricanes) <- c("TRACTCE","Annualized Hurricane Frequency")
 Carteret_Hurricanes$TRACTCE <- as.character(Carteret_Hurricanes$TRACTCE)
@@ -532,7 +533,11 @@ carteret.combined.hurricane.shape$Asian <- as.numeric(gsub("[\\%,]", "", cartere
 
 colnames(carteret.combined.hurricane.shape) <- c("TRACTCE","DataType","AnnualizedHurricaneFrequency","STATEFP","COUNTYF","GEOID","NAME","NAMELSA","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","geometry","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline", "Bachelorsdegreeorhigherbelowpovertyline")
 
-#conducting 
+#making spatial
+#st_write(carteret.combined.hurricane.shape, here("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp"))
+carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
+
+#conducting hurricane correlation tests
 cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$White)
 #resulting p-value is > 0.05 so it is not significant
 cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Black.or.African.American)
@@ -584,27 +589,31 @@ cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, cartere
 ```{r Carteret county Hurricane Maps, echo=FALSE}
 #making spatial
 #st_write(carteret.combined.hurricane.shape, here("./Data/Processed/carteret.combined.hurricane.shape.shp"))
-carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.shp")
+carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
 colnames(carteret.combined.hurricane.shape)
 
+#maps of importance for hurricanes
 
 #Population Below Poverty Line Map
-mapview(carteret.combined.hurricane.shape, zcol = "PpltbPL", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.hurricane.shape$NAMELSA)
+mapview(carteret.combined.hurricane.shape, zcol = "PpltnPL", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.hurricane.shape$NAMELSA) 
 
-#Population over 65 & Below Poverty Line Map
-mapview(carteret.combined.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+#Population Under 18 and Below Poverty Line Map
+mapview(carteret.combined.hurricane.shape, zcol = "Undr18b", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Population Under 18 and Below Poverty Line", label = carteret.combined.hurricane.shape$NAMELSA)
 
-#Percent of Carteret County Below Poverty Line and Recieved Some College Education Map
-mapview(carteret.combined.shape, zcol = "Scad.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.shape$NAMELSA)
+#Percent of Carteret County Below Poverty Line and Received Some College Education Map
+mapview(carteret.combined.hurricane.shape, zcol = "Smcllgs", col.regions = c(
+paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.hurricane.shape$NAMELSA)
 
-#Percent of Carteret County 25 Years and Older Below Poverty Line Map
-mapview(carteret.combined.shape, zcol = "P2yao.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+#Asian Population Percent of Carteret County Map
+mapview(carteret.combined.hurricane.shape, zcol = "Asian", col.regions = c(
+paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Asian Population Percent of Carteret County", label = carteret.combined.hurricane.shape$Asian)
 
 #Percent of Carteret County Males Below the Poverty Line and Employed Map
-mapview(carteret.combined.shape, zcol = "EmplydM", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.shape$NAMELSA)
+mapview(carteret.combined.hurricane.shape, zcol = "EmplydM", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.hurricane.shape$NAMELSA)
 
-#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed Map
-mapview(carteret.combined.shape, zcol = "CLF1YaO", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.shape$NAMELSA)
+#Percent of Carteret County Employed Map
+mapview(carteret.combined.hurricane.shape, zcol = "PrcntEm", col.regions = c(
+paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Percent of Carteret Below the Poverty Line and Employed", label = carteret.combined.hurricane.shape$NAMELSA)
 
 #determining max flooding: 3.687
 #determining least flooding: 0.012
