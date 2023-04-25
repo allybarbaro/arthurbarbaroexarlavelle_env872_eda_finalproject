@@ -346,6 +346,9 @@ combined.demographics$`65 & over & below poverty line` <- as.numeric(gsub("[\\%,
 #cleaning column names
 colnames(combined.demographics) <- c("TRACTCE", "AnnualizedFloodFrequency","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline", "Bachelorsdegreeorhigherbelowpovertyline","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline")
 
+#write.csv(combined.demographics,
+          #file = here("./Data/Processed/combined.demographics.csv"))
+
 #conducting correlation test
 cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$White)
 #resulting p-value is > 0.05 so it is not significant
