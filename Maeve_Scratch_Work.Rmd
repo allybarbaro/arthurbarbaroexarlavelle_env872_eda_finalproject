@@ -297,55 +297,73 @@ mapview(shape.and.race.percent, zcol = "Asian",
 
 ```
 
-```{r min flooding}
+```{r min flooding - this is what is actually going in the final project}
 #reading in flooding frequency data
 carteret.combined.shape <- st_read("./Data/Processed/carteret.combined.shape.shp")
 
-#determine min flooding tracts numbers
+#determine min flooding tracts number: 
 
+carteret.combined.shape %>% arrange(AnnlzFF)
 
-#important graphs
-#65 and over & below poverty line
+carteret.combined.min3flood.shape <- carteret.combined.shape[carteret.combined.shape$TRACTCE %in% c("970603","970102","970101"), ]
 
+#write shapefile
+#st_write(carteret.combined.min3flood.shape, here("./Data/Processed/carteret.combined.min3flood.shape.shp"))
 
-#PopulationbelowPovertyLine
+#read in shapefile
+carteret.combined.min3flood.shape <- st_read(here("./Data/Processed/carteret.combined.min3flood.shape.shp"))
 
+#min flooding
+mapview(carteret.combined.min3flood.shape, zcol = "AnnlzFF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Maximum Annualized Flooding In Cartert County", label = carteret.combined.min3flood.shape$NAMELSA, zoom=12) 
 
-#Somecollegeassociatesdegreebelowpovertyline
+#Population over 65 & Below Poverty Line & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "X6_o_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.minflood.shape$NAMELSA)
 
+#Population Below Poverty Line & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.minflood.shape$NAMELSA)
 
-#25over&belowpovertyline`
+#Percent of Carteret County Below Poverty Line and Recieved Some College Education & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "Scad_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.min3flood.shape$NAMELSA)
 
+#Percent of Carteret County 25 Years and Older Below Poverty Line & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "P2yao_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.min3flood.shape$NAMELSA)
 
-#EmployedMal3
+#Percent of Carteret County Males Below the Poverty Line and Employed & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.min3flood.shape$NAMELSA)
 
-
-#LaborForce16YearsandOver
-
-
-
-
+#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "CLF1YaO", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.min3flood.shape$NAMELSA)
 
 ```
-```{r hurricane graphs}
+```{r hurricane graphs - actually going in the final}
 carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
 
 #determine min flooding tracts numbers
+carteret.combined.hurricane.shape %>% arrange(AnnlzHF)
 
+#filter Carteret County by min Annualized Hurricane Frequency
+carteret.combined.minhurricane.shape <- carteret.combined.hurricane.shape[carteret.combined.hurricane.shape$TRACTCE %in% c("970801","970806"), ]
 
-#important graphs
+#write shapefile
+#st_write(carteret.combined.minhurricane.shape, here("./Data/Processed/carteret.combined.minhurricane.shape.shp"))
 
-#Under 18 below poverty line, 
+#read in shapefile
+carteret.combined.minhurricane.shape <- st_read(here("./Data/Processed/carteret.combined.minhurricane.shape.shp"))
 
+#Population Under 18 and Below Poverty Line & Min Hurricane Map
+mapview(carteret.combined.minhurricane.shape, zcol = "Undr18b", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Under 18 Below Poverty Line in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
 
-#Population below Poverty Line, 
+#Population Below Poverty Line & Min Hurricane Map
+mapview(carteret.combined.minhurricane.shape, zcol = "PpltnPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
 
+#Some college associates degree below poverty line & Min Hurricane Map 
+mapview(carteret.combined.minhurricane.shape, zcol = "Smcllgs", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line and Recieved Some College Education in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
 
-#Some college associates degree below poverty line, 
+#Percent of Carteret County Males Below the Poverty Line and Employed & Min Hurricane Map
+mapview(carteret.combined.minhurricane.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
 
-
-#Employed Male Percent Employed, Asian 
-
-
+#Asian Population Percent of Min Hurricane Tracts Carteret County Map
+mapview(carteret.combined.minhurricane.shape, zcol = "Asian", col.regions = c(
+paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Asian Population Percent of Carteret County in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$Asian)
 ```
 
