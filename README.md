@@ -34,6 +34,14 @@ This repository contains the folders Code, Data, and Output. The Data folder con
 <For each data file in the repository, describe the data contained in each column. Include the column name, a description of the information, the class of data, and any units associated with the data. Create a list or table for each data file.> 
 
 ## Scripts and code
+Wrangling Code:
+- initial_census_wrangling_code: code for initial census data wrangling 
+- census_FEMA_wrangling: code for further census wrangling, FEMA wrangling, and combination of two. Creation of spatial dataframes. 
+
+Analysis Code: 
+- additional_maps_code: code for additoinal maps final report could use.
+- graph_creation_code: code for creation of all charts and graphs in analysis. 
+- correlation_tests_code: code for statistical analysis and data visualizations.
 
 <list any software scripts/code contained in the repository and a description of their purpose.>
 
