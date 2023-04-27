@@ -1,9 +1,76 @@
+---
+title: "Coastal Flooding, Hurricanes, and Demographics in Carteret County, NC"
+subtitle: "https://github.com/allybarbaro/arthurbarbaroexarlavelle_env872_eda_finalproject.git"
+author: "Maeve Arthur, Allison Barbaro, Laura Exar and Aileen Lavelle"
+date: "2023-05-01"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+# 0.1 List of Tables
+*Dataset Information*
+
+- Table 2.1 Structure of Demographic Data
+
+- Table 2.2 Structure of Flooding and Hurricane Data 
+
+*Analysis*
+
+- Table 4.1.1 Results of Annualized Flooding Frequency Correlation Tests
+
+- Table 4.2.1 Results of Annualized Hurricane Frequency Correlation Tests
+
 \newpage
-\tableofcontents 
-\newpage
-\listoftables 
-\newpage
-\listoffigures 
+
+# 0.2 List of Figures
+*Exploratory Analysis*
+
+- Figure 3.1 Map of Carteret County study area.
+
+- Figure 3.2 Map of Carteret County census tracts.
+
+- Figure 3.3. Map of % White population by census tract.
+
+- Figure 3.4. Map of % Black or African American population by census tract.
+
+- Figure 3.5. Map of % American Indian and Alaska Native population by census tract.
+
+- Figure 3.6. Map of % Asian population by census tract.
+
+- Figure 3.7 Racial Composition of Each Census Tract.
+
+- Figure 3.8 Annualized Frequency of Coastal Flooding by Census Tract.
+
+- Figure 3.9 Annualized Frequency of Hurricanes by Census Tract.
+
+- Figure 3.9.1 Areas of Maximum Annualized Flooding in Carteret County.
+
+- Figure 3.9.2 Areas of Minimum Annualized Flooding in Carteret County.
+
+- Figure 3.9.3 Areas of Maximum Annualized Hurricane Frequency for Carteret County.
+
+- Figure 3.9.4 Areas of Minimum Annualized Hurricane Frequency for Carteret County.
+
+*Analysis*
+
+- Figure 4.1.1 Map of % population over 65 years old and below poverty line.
+
+- Figure 4.1.2 Map of % of population over 65 years old below poverty line in areas of maximum flooding.
+
+- Figure 4.1.3 Map of % of population below poverty line in Carteret County. 
+
+- Figure 4.1.4 Map of % of population with some college education below the poverty line in Carteret County.
+
+- Figure 4.1.5 Map of % population 25 years and older below the poverty line in Carteret County.
+
+- Figure 4.2.1 Map of % of population under 18 below poverty line in Carteret County.
+
+- Figure 4.2.2 Map of % of population with some college education below poverty line in Carteret County.
+
+- Figure 4.2.3 Map of % of population below poverty line in Carteret County.
+
 \newpage
 
 ```{r setup, include=FALSE}
@@ -12,6 +79,8 @@ library(tidyverse);library(lubridate);library(here);library(knitr); library(cowp
 library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer);library(leafpop);library(sjPlot)
 # Set your working directory
 here()
+#chunk options
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 # Set your ggplot theme
 Aileentheme <- theme_classic(base_size = 14) +
   theme(axis.text = element_text(color = "black"),
@@ -23,7 +92,7 @@ carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed
 carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
 flooding.race.shape <- st_read(here("./Data/Processed/flooding.race.correct.shp"))
 carteret.employment.percent.belowpoverty <- read_csv(here('./Data/Processed/carteret.employment.percent.belowpoverty.csv'))
-carteret.poverty.percent <- read_csv(here('./Data/Processed/carteret.poverty.csv'))
+carteret.poverty.percent <- read_csv(here('./Data/Processed/Carteret.poverty.csv'))
 carteret.age.sex.percent <-  read_csv(here("Data/Processed/Caretert.age.sex.percent.csv"))
 carteret.education.percent <- read_csv(here("Data/Processed/caretert.education.percent.belowpoverty.csv"))
 max_flooding <- st_read(here("./Data/Processed/maxfloodingcorrect.shp"))
@@ -36,48 +105,240 @@ carteret.combined.hurricane.shape <- st_read(here("./Data/Processed/carteret.com
 carteret.combined.minhurricane.shape <- st_read(here("./Data/Processed/carteret.combined.minhurricane.shape.shp"))
 ```
 
+# 1. Rationale and Research Questions
 
-# Rationale and Research Questions
+Carteret County is a coastal county in North Carolina with a population of around 69,000 and an area of over 500 square miles. This area is characterized by low-lying wetlands, agricultural fields, beach towns, and thin barrier islands. Carteret, like all coastal counties in North Carolina, is subject to frequent coastal flooding and hurricanes. According to the county government, 33% of the county's population lives within a FEMA-designated Special Flood Hazard Area (SFHA). 39% of all road miles, and 24% of all "critical facilities" are located within the SFHA.
 
+This analysis aimed to examine the correlation between coastal flooding and hurricane events and different demographic characteristics of Carteret county residents. In the United States environmental injustices are often highlighted by natural disaster events, as under-served and under-resourced communities are impacted at higher rates than wealthier, whiter communities. This analysis used US Census Data from the 2021 American Community Survey (ACS) in order to examine a wide range of demographic data for Carteret County at the census tract level. Coastal flooding and hurricane data was obtained from a FEMA National Risk Index dataset. These datasets will be discussed further in the following section of this report.
 
+### Research Questions
+
+In order to investigate the impact of coastal flooding and hurricanes on different communities in Carteret county, this analysis focused on four central research questions:
+
+1.  Which set of demographic factors are correlated with annualized flooding frequency?
+2.  Which set of demographic factors are correlated with annualized hurricane frequency?
 
 \newpage
 
-# Dataset Information
+# 2. Dataset Information
 
+All demographic data for this analysis is US Census data from the American Community Survey 2021 5-year estimates. The ACS 5-year estimates represent data collected over a period of time, and are best used for less-populated geographies. Individual datasets for each demographic variable of interest were downloaded in csv format for Carteret county at the census tract level. Chosen variables of interest were: race, educational attainment, age, sex, poverty status, and employment status. These datasets contained totals and percentages for each demographic category by census tract. For example, the race dataset contained estimates of total population of each racial group recorded in the ACS, and percent of total population represented in this group by census tract.
 
+Each demographic dataset was wrangled in order to be legible and easily analyzed. Unnecessary columns and rows were deleted, columns and rows were renamed, and total estimates and percentages for each characteristic were separated into two distinct datasets. The separation of percentages and totals allowed for straightforward data visualizations.
+
+The coastal flooding and hurricane data from FEMA's National Risk Index (NRI) data set. The NRI contains data on 18 different natural hazards. This dataset was selected due to the presence of annualized frequency by natural hazard. Annualized frequency refers to the probability of a hazard instance per year.
+
+The FEMA NRI data was acquired in csv format at the census tract level for the entire state of North Carolina. This csv contained information on all types of natural hazards. This data was filtered to contain only census tracts within Carteret county and only annualized frequency of hurricanes and coastal flooding.
+
+Table 2.1 Structure of Demographic Data
+
+| Census Tract | Demographic Characteristic      |
+|--------------|---------------------------------:|
+| Tract Number | Percent of Population in tract  |
+| Tract Number | Percent of Population in tract  |
+
+Table 2.2 Structure of Flooding and Hurricane Data
+
+| Census Tract | Hazard Annualized Frequency      |
+|--------------|----------------------------------:|
+| Tract Number | Probability of Hazard Occurrence |
+| Tract Number | Probability of Hazard Occurrence |
 
 \newpage
 
-# Exploratory Analysis 
-```{r Carteret county with racial demographics}
-#blank census tracts map
+# 3. Exploratory Analysis
+
+The exploratory analysis of the data involved visualizing the racial demographic data spatially and graphing the hazard data by census tract. These maps depict different racial groups at the census tract level. The study area is shown in Figure 3.1 below. All census tracts within Carteret county are highlighted in Figure 3.2 below. Figure 3.3 illustrates percent of white population by census tract, while Figure 3.4 shows the same for Black and African American population, Figure 3.5 for American Indian and Alaskan Native, and Figure 3.6 for Asian population. Figure 3.7 is a graph representing the racial makeup of each census tract. Figure 3.8 details the annualized frequency of coastal flooding for each census tract, while Figure 3.9 shows the annualized frequency of hurricanes by census tract. These initial maps and plots set the stage for our later analysis. Figures 3.9.1 and 3.9.2 provide the census tracts with the maximum and minimum annualized flooding. **Should I say a sentence about why we only map racial categories here and not other demo variables? or it doesn't matter?**
+
+```{r Figure 3.1, fig.cap="Map of Carteret County by census tract.", echo=FALSE}
 m1 <- mapview(carteret.shape, zcol = "NAMELSAD", color = 'black', alpha.regions = 0, layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD")
 m1
-#All Census blocks in Cartert County
+```
+Figure 3.1. Map of Carteret County study area. 
+```{r Figure 3.2, fig.cap="Map of all census tracts in Carteret County.", echo=FALSE}
 mapview(flooding.race.shape, zcol = "NAMELSA", col.regions = paletteer_c("grDevices::Set 3", 30,), layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSA")
-
-#white Population Map
+```
+Figure 3.2. Map of Carteret County census tracts.
+```{r Figure 3.3, fig.cap="Map of White population by census tract.", echo=FALSE}
 mapview(flooding.race.shape, zcol = "White", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County White Population", label = "White Population Percent")
-
-#Black/African American Population Map
+```
+Figure 3.3. Map of % White population by census tract.
+```{r Figure 3.4, fig.cap="Map of Black or African American population by census tract.", echo=FALSE}
 mapview(flooding.race.shape, zcol = "Bl__A_A", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Black or African American Population Percent", label = flooding.race.shape$TRACTCE)
-
-#American Indian and Native Alaskan Population Map
+```
+Figure 3.4. Map of % Black or African American population by census tract.
+```{r Figure 3.5, fig.cap="Map of American Indian and Alaska Native population by census tract.", echo=FALSE}
 mapview(flooding.race.shape, zcol = "A_I__A_", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Native American Population Percent", label = flooding.race.shape$TRACTCE)
-
+```
+Figure 3.5. Map of % American Indian and Alaska Native population by census tract.
+```{r Figure 3.6, fig.cap="Map of Asian population by census tract.", echo=FALSE}
 #Asian Population Map
 mapview(flooding.race.shape, zcol = "Asian", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Asian Population Percent", label = flooding.race.shape$TRACTCE)
+```
+Figure 3.6. Map of % Asian population by census tract.
 
+```{r Figure 3.7, fig.cap= "Figure 3.7 Racial Composition of Each Census Tract.", echo=FALSE}
+Carteret_Race <- read.csv(file = here("Data/Processed/carteret.race.number.pivoted.csv"), stringsAsFactors = TRUE)
+
+colnames(Carteret_Race) <- c("Census.Tract","Race","Population")
+Carteret_Race$Census.Tract <- as.factor(Carteret_Race$Census.Tract)
+Carteret_Race$Population <- as.numeric(gsub(",","",Carteret_Race$Population))
+
+Race_Plot <- ggplot(Carteret_Race, aes(x = Census.Tract, y=Population, fill=Race)) + geom_bar(stat='identity', width=2,position='dodge') + 
+  labs(title = "Racial Composition of Each Census Tract",
+         x = "Census Tract",
+         y = "Population") +
+  theme(legend.position="bottom",legend.text=element_text(size=5),legend.title = element_text(size=7),axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 0.5)) + 
+  labs(fill="Race")
+
+print(Race_Plot)
 ```
 
+```{r Figure 3.8, fig.cap="Figure 3.8 Annualized Frequency of Coastal Flooding by Census Tract.", echo=FALSE}
+carteret.flooding$TRACT <- as.factor(carteret.flooding$TRACT)
 
+Flooding_Plot <- ggplot(carteret.flooding, aes(x = TRACT, y = CFLD_AFREQ)) +
+  geom_col() + 
+  labs(title="Annualized Frequency of Coastal Flooding by Census Tract", x="Census Tract", y="Annualized Frequency of Coastal Flooding") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  ylim(0,4)
+
+print(Flooding_Plot)
+```
+
+```{r Figure 3.9, fig.cap="Figure 3.9 Annualized Frequency of Hurricanes by Census Tract.", echo=FALSE}
+Carteret_Hurricanes$TRACT <- as.factor(Carteret_Hurricanes$TRACT)
+
+Hurricanes_Plot <- ggplot(Carteret_Hurricanes, aes(x = TRACT, y = HRCN_AFREQ)) +
+  geom_col() + 
+  labs(title="Annualized Frequency of Hurricanes by Census Tract", x="Census Tract", y="Annualized Frequency of Hurricanes") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  ylim(0,3.5)
+
+print(Hurricanes_Plot)
+```
+
+```{r Figure 3.9.1 max flooding, echo=FALSE}
+mapview(carteret.combined.maxflood.shape, zcol = "AnnlzFF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Maximum Annualized Flooding In Cartert County", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
+```
+Figure 3.9.1 Areas of Maximum Annualized Flooding in Carteret County.
+
+```{r min flooding calc, include=FALSE}
+#min flooding
+#filtering for min flooding tracks
+carteret.combined.shape %>% arrange(AnnlzFF)
+
+carteret.combined.min3flood.shape <- carteret.combined.shape[carteret.combined.shape$TRACTCE %in% c("970603","970102","970101"), ]
+
+#write shapefile
+#st_write(carteret.combined.min3flood.shape, here("./Data/Processed/carteret.combined.min3flood.shape.shp"))
+
+#read in shapefile
+#carteret.combined.min3flood.shape <- st_read(here("./Data/Processed/carteret.combined.min3flood.shape.shp"))
+```
+
+```{r Figure 3.9.2, echo=FALSE}
+mapview(carteret.combined.min3flood.shape, zcol = "AnnlzFF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Minimum Annualized Flooding In Cartert County", label = carteret.combined.min3flood.shape$NAMELSA, zoom=12) 
+```
+Figure 3.9.2 Areas of Minimum Annualized Flooding in Carteret County.
 \newpage
 
-# Analysis
+```{r creating max hurricane map, include=FALSE}
+#filter Carteret County by Max Annualized Hurricane Frequency
+carteret.combined.maxhurricane.shape <- carteret.combined.hurricane.shape[carteret.combined.hurricane.shape$TRACTCE %in% c("971003","970903"), ]
+```
 
-#Map of Cartert County by Annualized Flooding Frequency
-```{r Flooding and Factors Correlations}
+```{r Figure 3.9.3, echo=FALSE}
+# Maximumm Annualized Hurricane Frequency in Carteret County Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "AnnlzHF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Maximum Annualized Hurricane Frequency In Cartert County", label = carteret.combined.maxhurricane.shape$NAMELSA)
+```
+Figure 3.9.3 Areas of Maximum Annualized Hurricane Frequency for Carteret County.
+
+```{r creating min hurricane map, include=FALSE}
+#MIN FREQUENCY HURRICANES
+#determine min flooding tracts numbers
+carteret.combined.hurricane.shape %>% arrange(AnnlzHF)
+
+#filter Carteret County by min Annualized Hurricane Frequency
+carteret.combined.minhurricane.shape <- carteret.combined.hurricane.shape[carteret.combined.hurricane.shape$TRACTCE %in% c("970801","970806"), ]
+
+#write shapefile
+#st_write(carteret.combined.minhurricane.shape, here("./Data/Processed/carteret.combined.minhurricane.shape.shp"))
+
+#read in shapefile
+#carteret.combined.minhurricane.shape <- st_read(here("./Data/Processed/carteret.combined.minhurricane.shape.shp"))
+```
+
+```{r Figure 3.9.4, echo=FALSE}
+#Minimum Annualized Hurricane Frequency in Carteret County Map
+mapview(carteret.combined.minhurricane.shape, zcol = "AnnlzHF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Minimum Annualized Hurricane Frequency In Cartert County", label = carteret.combined.minhurricane.shape$NAMELSA, zoom=12)
+```
+Figure 3.9.4 Areas of Minimum Annualized Hurricane Frequency for Carteret County.
+# 4. Analysis
+The analysis of these datasets focused on running correlation tests between different demographic factors and either the coastal flooding or hurricane annualized frequency. This determined which demographic factors were significantly correlated with either flooding or hurricane frequency. These results, combined with maps created through simple spatial analysis paint a picture of the relationship between demographic factors and coastal flooding and hurricanes in Carteret County, NC. 
+
+* The following demographic variables were used in correlation tests with both annualized frequency
+of coastal flooding and annualized frequency of hurricanes:
+  + Percent of population, White
+  + Percent of population, Black or African American
+  + Percent of population, Asian
+  + Percent of population, American Indian and Alaska Native 
+  + Percent of population, Cherokee Tribal Grouping 
+  + Percent of population, Sioux Tribal Grouping 
+  + Percent of population, Labor Force 16 Years and Over 
+  + Percent of population, Employed 
+  + Percent of population, Employed Males 
+  + Percent of population, Employed Females 
+  + Percent of population, Unemployed 
+  + Percent of population, Unemployed Males 
+  + Percent of population, Unemployed Females 
+  + Percent of population, Aged 25 and Over and Below Poverty Line 
+  + Percent of population, Education Less than High School Graduate and Below Poverty Line 
+  + Percent of population, Education Level High School Graduate and Below Poverty Line 
+  + Percent of population, Education Level Some College or Associates Degree Below Poverty Line 
+  + Percent of population, Education Level Bachelors Degree or Higher Below Poverty Line
+  + Percent of population, Below Poverty Line 
+  + Percent of population, Age Under 18 Below Poverty Line
+  + Percent of population, Age 18 - 64 Below Poverty Line 
+  + Percent of population, Age 65 and Over Below Poverty Line 
+
+## 4.1 Coastal Flooding Analysis
+The results from the coastal flooding correlation tests are as follows:
+
+Demographic Variable.          | P-Value         | Significant?  |
+------------------------------- | ------------- :| ------------ :|
+% Pop White                     | 0.9076         | No            |
+% Pop Black or African American | 0.3664         | No            |
+% Pop Asian                     | 0.5262         | No            |
+% Pop American Indian and Alaska Native | 0.3822 | No |
+% Pop Cherokee Tribal Grouping | 0.6958 | No |
+% Pop Sioux Tribal Grouping | 0.9795 | No |
+% Pop Labor Force 16 Years or Over | 0.4844 | No |
+% Pop Employed | 0.5044 | No |
+% Pop Employed Males | 0.4751 | No |
+% Pop Employed Females | 0.5998 | No |
+% Pop Unemployed | 0.7927 | No |
+% Pop Unemployed Males | 0.6928 | No |
+% Pop Unemployed Females | 0.5897 | No |
+% Pop Aged 25 and Over and Below Poverty Line | 0.3234 | No |
+% Pop Education Less than High School Graduate and Below Poverty Line | 0.8087 | No |
+% Pop Education Level High School Graduate and Below Poverty Line | 0.7099 | No |
+% Pop Education Level Some College or Associates Degree Below Poverty Line | 0.1064 | No |
+% Pop Education Level Bachelors Degree or Higher Below Poverty Line | 0.7212 | No |
+% Pop Below Poverty Line | 0.3677 | No |
+% Pop Age Under 18 Below Poverty Line | 0.7199 | No |
+% Pop Age 18 - 64 Below Poverty Line | 0.5306 | No |
+% Pop Age 65 and Over Below Poverty Line | 0.01493 | **YES** |
+Table 4.1.1 Results of Annualized Flooding Frequency Correlation Tests
+
+The only demographic variable with a significant result (a p-value of less than 0.05) is percent of population over 65 years old and below the poverty line. The P-value for this correlation test is 0.01493. The test resulted in a negative correlation, meaning that the more people over 65 that are below the poverty line, the less likely the census tract has a higher Annualized Flooding Frequency. Figure 4.1.1 below depicts the percent of population over 65 years old and below the poverty line by census tract. 
+
+```{r Figure 4.1.1, echo=FALSE}
+#Population over 65 & Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+```
+Figure 4.1.1 Map of % population over 65 years old and below poverty line.
+```{r Flooding and Factors Correlations, include=FALSE}
 #conducting correlation test
 cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$White)
 #resulting p-value is > 0.05 so it is not significant
@@ -126,92 +387,71 @@ cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`
 
 #significant results (p<0.05): `65overbelowpovertyline`
 #Other small p-values (p<0.2): PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, `25over&belowpovertyline`, EmployedMale, LaborForce16YearsandOver
+
 ```
 
-
-```{r Flooding and Factors Maps}
-#Population Below Poverty Line Map
-mapview(carteret.combined.shape, zcol = "PpltbPL", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.shape$NAMELSA)
-
-#Population over 65 & Below Poverty Line Map
-mapview(carteret.combined.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.shape$NAMELSA)
-
-#Percent of Carteret County Below Poverty Line and Recieved Some College Education Map
-mapview(carteret.combined.shape, zcol = "Scad.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.shape$NAMELSA)
-
-#Percent of Carteret County 25 Years and Older Below Poverty Line Map
-mapview(carteret.combined.shape, zcol = "P2yao.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.shape$NAMELSA)
-
-#Percent of Carteret County Males Below the Poverty Line and Employed Map
-mapview(carteret.combined.shape, zcol = "EmplydM", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.shape$NAMELSA)
-
-#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed Map
-mapview(carteret.combined.shape, zcol = "CLF1YaO", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.shape$NAMELSA)
-
-#determined max flooding: 3.687
-#determined least flooding: 0.012, 2.392, 3.043
-
-#max flooding
-mapview(carteret.combined.maxflood.shape, zcol = "AnnlzFF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Maximum Annualized Flooding In Cartert County", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
-
-#Population Below Poverty Line & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
-
+```{r Figure 4.1.2, echo=FALSE}
 #Population over 65 & Below Poverty Line & Max Flooding Map
 mapview(carteret.combined.maxflood.shape, zcol = "X6_o_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
-
-#Percent of Carteret County Below Poverty Line and Recieved Some College Education & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "Scad_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.maxflood.shape$NAMELSA)
-
-#Percent of Carteret County 25 Years and Older Below Poverty Line & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "P2yao_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
-
-#Percent of Carteret County Males Below the Poverty Line and Employed & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
-
-#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed & Max Flooding Map
-mapview(carteret.combined.maxflood.shape, zcol = "CLF1YaO", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
-
-#min flooding
-#filtering for min flooding tracks
-carteret.combined.shape %>% arrange(AnnlzFF)
-
-carteret.combined.min3flood.shape <- carteret.combined.shape[carteret.combined.shape$TRACTCE %in% c("970603","970102","970101"), ]
-
-#write shapefile
-#st_write(carteret.combined.min3flood.shape, here("./Data/Processed/carteret.combined.min3flood.shape.shp"))
-
-#read in shapefile
-#carteret.combined.min3flood.shape <- st_read(here("./Data/Processed/carteret.combined.min3flood.shape.shp"))
-
-mapview(carteret.combined.min3flood.shape, zcol = "AnnlzFF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Minimum Annualized Flooding In Cartert County", label = carteret.combined.min3flood.shape$NAMELSA, zoom=12) 
-
-#Population over 65 & Below Poverty Line & Min Flooding Map
-mapview(carteret.combined.min3flood.shape, zcol = "X6_o_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.minflood.shape$NAMELSA)
-
-#Population Below Poverty Line & Min Flooding Map
-mapview(carteret.combined.min3flood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.minflood.shape$NAMELSA)
-
-#Percent of Carteret County Below Poverty Line and Recieved Some College Education & Min Flooding Map
-mapview(carteret.combined.min3flood.shape, zcol = "Scad_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.min3flood.shape$NAMELSA)
-
-#Percent of Carteret County 25 Years and Older Below Poverty Line & Min Flooding Map
-mapview(carteret.combined.min3flood.shape, zcol = "P2yao_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.min3flood.shape$NAMELSA)
-
-#Percent of Carteret County Males Below the Poverty Line and Employed & Min Flooding Map
-mapview(carteret.combined.min3flood.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.min3flood.shape$NAMELSA)
-
-#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed & Min Flooding Map
-mapview(carteret.combined.min3flood.shape, zcol = "CLF1YaO", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.min3flood.shape$NAMELSA)
-
 ```
+Figure 4.1.2 Map of % of population over 65 years old below poverty line in areas of maximum flooding.
+
+Demographic variables with insignificant, yet relatively small p-values are percent of population below poverty line, percent of population with some college or an associates degree below the poverty line, and percent of population over the age of 25 below the poverty line. Figures 4.1.3 through 4.1.5 map these demographic variables by census tract in Carteret county. Percent of population below poverty line, percent of population 25 and over below poverty line, and percent of population with some college below the poverty line all have slightly negative correlations. This means as these demographic factors increase in a given census tract, the less likely that tract is to have a higher Annualized Flooding Frequency. 
+
+```{r Figure 4.1.3, echo=FALSE}
+#Population Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "PpltbPL", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+```
+Figure 4.1.3 Map of % of population below poverty line in Carteret County. 
+
+```{r Figure 4.1.4, echo=FALSE}
+#Percent of Carteret County Below Poverty Line and Recieved Some College Education Map
+mapview(carteret.combined.shape, zcol = "Scad.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.shape$NAMELSA)
+```
+Figure 4.1.4 Map of % of population with some college education below the poverty line in Carteret County.
+
+```{r Figure 4.1.5, echo=FALSE}
+#Percent of Carteret County 25 Years and Older Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "P2yao.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+```
+Figure 4.1.5 Map of % population 25 years and older below the poverty line in Carteret County.
 
 ```{r Change carteret.combined.hurricane.shape Column Names, include=FALSE}
 #change the names back so that the correlation makes sense
 colnames(carteret.combined.hurricane.shape) <- c("TRACTCE","DataType","AnnualizedHurricaneFrequency","STATEFP","COUNTYF","GEOID","NAME","NAMELSA","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline","Bachelorsdegreeorhigherbelowpovertyline","geometry")
 ```
+## 4.2 Hurricane Analysis
+The results from the hurricane correlation tests are as follows:
 
-```{r Hurricane and Factors Correlation}
+Demographic Variable | P-Value       | Significant?  |
+------------------- | ------------- :| ------------ :|
+% Pop White         | 0.5813         | No            |
+% Pop Black or African American | 0.55 | No |
+% Pop Asian | 0.1832 | No |
+% Pop American Indian and Alaska Native | 0.684 | No |
+% Pop Cherokee Tribal Grouping | 0.8256 | No |
+% Pop Sioux Tribal Grouping | 0.5146 | No |
+% Pop Labor Force 16 Years or Over | 0.2241 | No |
+% Pop Employed | 0.1578 | No |
+% Pop Employed Males | 0.171 | No |
+% Pop Employed Females | 0.3015 | No |
+% Pop Unemployed | 0.8848 | No |
+% Pop Unemployed Males | 0.7252 | No |
+% Pop Unemployed Females | 0.5489 | No |
+% Pop Aged 25 and Over and Below Poverty Line | 0.1934 | No |
+% Pop Education Less than High School Graduate and Below Poverty Line | 0.26 | No |
+% Pop Education Level High School Graduate and Below Poverty Line | 0.4258 | No |
+% Pop Education Level Some College or Associates Degree Below Poverty Line | 0.1057 | No |
+% Pop Education Level Bachelors Degree or Higher Below Poverty Line | 0.7494 | No |
+% Pop Below Poverty Line | 0.1507 | No |
+% Pop Age Under 18 Below Poverty Line | 0.1055 | No |
+% Pop Age 18 - 64 Below Poverty Line | 0.2765 | No |
+% Pop Age 65 and Over Below Poverty Line | 0.3127 | No |
+Table 4.2.1 Results of Annualized Hurricane Frequency Correlation Tests
+
+No demographic variables have a significant (p-value of less than 0.05) correlation with annualized hurricane frequency. The smallest p-values resulted from the tests with percent of population under age 18 below the poverty line, percent of population with some college below the poverty line, and percent of population below the poverty line. These all have slightly negative correlations. This means as these demographic factors increase in a given census tract, the less likely that tract is to have a higher Annualized Hurricane Frequency. 
+
+```{r Hurricane and Factors Correlation, include=FALSE}
 #conducting hurricane correlation tests
 cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$White)
 #resulting p-value is > 0.05 so it is not significant
@@ -258,112 +498,31 @@ cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, cartere
 cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`65overbelowpovertyline`)
 #resulting p-value is > 0.05 so it is not significant
 
-#low p vale factors (p<0.2): Under18belowpovertyline, PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, EmployedMale PercentEmployed, Asian
+#low p vale factors (p<0.2): Under18belowpovertyline, PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline
 ```
-
-```{r Hurricane and Factors Maps}
-#Population Below Poverty Line Map
-mapview(carteret.combined.hurricane.shape, zcol = "PopulationbelowPovertyLine", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.hurricane.shape$NAMELSA) 
-
+Figure 4.2.1 maps percent of population under 18 and below the poverty line by census tract. Figure 4.2.2 illustrates the geographic distribution of the percent of population with some college below the poverty line. Figure 4.2.3 displays the percent of population below the poverty line by census tract.
+```{r Figure 4.2.1, echo=FALSE}
 #Population Under 18 and Below Poverty Line Map
 mapview(carteret.combined.hurricane.shape, zcol = "Under18belowpovertyline", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Population Under 18 and Below Poverty Line", label = carteret.combined.hurricane.shape$NAMELSA)
-
+```
+Figure 4.2.1 Map of % of population under 18 below poverty line in Carteret County.
+```{r Figure 4.2.2, echo = FALSE}
 #Percent of Carteret County Below Poverty Line and Received Some College Education Map
 mapview(carteret.combined.hurricane.shape, zcol = "Somecollegeassociatesdegreebelowpovertyline", col.regions = c(
 paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.hurricane.shape$NAMELSA)
-
-#Asian Population Percent of Carteret County Map
-mapview(carteret.combined.hurricane.shape, zcol = "Asian", col.regions = c(
-paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Asian Population Percent of Carteret County", label = carteret.combined.hurricane.shape$Asian)
-
-#Percent of Carteret County Males Below the Poverty Line and Employed Map
-mapview(carteret.combined.hurricane.shape, zcol = "EmployedMale", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.hurricane.shape$NAMELSA)
-
-#Percent of Carteret County Employed Map
-mapview(carteret.combined.hurricane.shape, zcol = "PercentEmployed", col.regions = c(
-paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Percent of Carteret County Below the Poverty Line and Employed", label = carteret.combined.hurricane.shape$NAMELSA)
-
-summary(carteret.combined.hurricane.shape$AnnlzHF)
-#determining max hurricane: 3.0792
-#determining least hurricane: 0.3870, 0.3974
-
-#Annualized Hurricane Frequency in Carteret County Map
-mapview(carteret.combined.hurricane.shape, zcol = "AnnualizedHurricaneFrequency", col.regions = c(
-paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Annualized Hurricane Frequency in Carteret County", label = carteret.combined.hurricane.shape$NAMELSA)
-
-#filter Carteret County by Max Annualized Hurricane Frequency
-carteret.combined.maxhurricane.shape <- carteret.combined.hurricane.shape[carteret.combined.hurricane.shape$TRACTCE %in% c("971003","970903"), ]
-
-#Population Below Poverty Line & Max Hurricane Map
-mapview(carteret.combined.maxhurricane.shape, zcol = "PopulationbelowPovertyLine", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
-
-#Population over 65 & Below Poverty Line & Max Hurricane Map
-mapview(carteret.combined.maxhurricane.shape, zcol = "65overbelowpovertyline", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Over 65 and Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
-
-#Percent of Carteret County Below Poverty Line and Received Some College Education & Max Hurricane Map
-mapview(carteret.combined.maxhurricane.shape, zcol = "Somecollegeassociatesdegreebelowpovertyline", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line and Recieved Some College Education in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
-
-#Percent of Carteret County under 18 Below Poverty Line & Max Hurricane Map
-mapview(carteret.combined.maxhurricane.shape, zcol = "Under18belowpovertyline", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Under 18 Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
-
-#Percent of Carteret County Males Below the Poverty Line and Employed & Max Hurricane Map
-mapview(carteret.combined.maxhurricane.shape, zcol = "EmployedMale", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
-
-#Percent of Carteret County Employed Map
-mapview(carteret.combined.maxhurricane.shape, zcol = "PercentEmployed", col.regions = c(
-paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below the Poverty Line and Employed in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
-
-#Asian Population Percent of Carteret County Map
-mapview(carteret.combined.maxhurricane.shape, zcol = "Asian", col.regions = c(
-paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Asian Population Percent of Carteret County in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$Asian)
-
-#MIN FREQUENCY HURRICANES
-#determine min flooding tracts numbers
-carteret.combined.hurricane.shape %>% arrange(AnnlzHF)
-
-#filter Carteret County by min Annualized Hurricane Frequency
-carteret.combined.minhurricane.shape <- carteret.combined.hurricane.shape[carteret.combined.hurricane.shape$TRACTCE %in% c("970801","970806"), ]
-
-#write shapefile
-#st_write(carteret.combined.minhurricane.shape, here("./Data/Processed/carteret.combined.minhurricane.shape.shp"))
-
-#read in shapefile
-#carteret.combined.minhurricane.shape <- st_read(here("./Data/Processed/carteret.combined.minhurricane.shape.shp"))
-
-#min hurricane map
-mapview(carteret.combined.minhurricane.shape, zcol = "AnnlzHF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Minimum Annualized Hurricane Frequency In Cartert County", label = carteret.combined.minhurricane.shape$NAMELSA, zoom=12) 
-
-#Population Under 18 and Below Poverty Line & Min Hurricane Map
-mapview(carteret.combined.minhurricane.shape, zcol = "Undr18b", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Under 18 Below Poverty Line in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
-
-#Population Below Poverty Line & Min Hurricane Map
-mapview(carteret.combined.minhurricane.shape, zcol = "PpltnPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
-
-#Some college associates degree below poverty line & Min Hurricane Map 
-mapview(carteret.combined.minhurricane.shape, zcol = "Smcllgs", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line and Recieved Some College Education in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
-
-#Percent of Carteret County Males Below the Poverty Line and Employed & Min Hurricane Map
-mapview(carteret.combined.minhurricane.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
-
-#Asian Population Percent of Min Hurricane Tracts Carteret County Map
-mapview(carteret.combined.minhurricane.shape, zcol = "Asian", col.regions = c(
-paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Asian Population Percent of Carteret County in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$Asian)
-
 ```
-
-## Question 1: <insert specific question here and add additional subsections for additional questions below, if needed>
-
-## Question 2: 
-
-
-
-
+Figure 4.2.2 Map of % of population with some college education below poverty line in Carteret County.
+```{r Figure 4.2.3, echo=FALSE}
+#Population Below Poverty Line Map
+mapview(carteret.combined.hurricane.shape, zcol = "PopulationbelowPovertyLine", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.hurricane.shape$NAMELSA) 
+```
+Figure 4.2.3 Map of % of population below poverty line in Carteret County.
 \newpage
 
-# Summary and Conclusions
+# 5. Summary and Conclusions
+The only significant correlation in this analysis to either hazard in Carteret county is the negative correlation of percent of population above age 65 and below the poverty line to annualized frequency of coastal flooding.
 
+The overall results suggest that demographic characteristics do not relate to the spatial distribution of coastal flooding and hurricanes in Carteret county. While other environmental justice issues could be present in the county, this analysis suggests that different racial and socioeconomic groups are not more or less subject to coastal flooding and hurricanes.
 
-\newpage
+Future research could use these analysis methods on urban counties subject to coastal flooding and hurricanes, such as Kings County in New York. Denser overall population, higher populations of different racial groups, and an urban coastal geography could lead to very different results than this analysis of Carteret County. 
 
-# References
-<add references here if relevant, otherwise delete this section> 
