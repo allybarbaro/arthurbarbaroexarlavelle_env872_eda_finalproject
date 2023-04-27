@@ -42,6 +42,7 @@ Analysis Code:
 - additional_maps_code: code for additoinal maps final report could use.
 - graph_creation_code: code for creation of all charts and graphs in analysis. 
 - correlation_tests_code: code for statistical analysis and data visualizations.
+- final_product_visualization_test: code for testing the knitting process and layout of final report.
 
 <list any software scripts/code contained in the repository and a description of their purpose.>
 
