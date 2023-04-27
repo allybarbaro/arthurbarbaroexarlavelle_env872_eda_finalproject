@@ -209,7 +209,7 @@ flooding.race.shape <- st_read("./Data/Processed/flooding.race.correct.shp")
 colnames(flooding.race.shape)
 
 #All Census blocks in Cartert County
-mapview(shape.and.race, zcol = "NAMELSAD", col.regions = paletteer_c("grDevices::Set 3", 30,), layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD")
+#mapview(shape.and.race, zcol = "NAMELSAD", col.regions = paletteer_c("grDevices::Set 3", 30,), #layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD")
 
 #white Population Map
 mapview(flooding.race.shape, zcol = "White", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County White Population", label = "White Population Percent")
