@@ -8,11 +8,13 @@ output:
     toc: true
     toc_depth: 2
 ---
-
+```{r  More setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 # 0.1 List of Tables
 *Dataset Information*
 
-- Table 2.1 Structure of Demographic Data
+- Table 2.1 \@ref(tab:table1): Structure of Demographic Data
 
 - Table 2.2 Structure of Flooding and Hurricane Data 
 
@@ -76,7 +78,7 @@ output:
 ```{r setup, include=FALSE}
 # Load your packages
 library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl);library(shinydashboard);
-library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer);library(leafpop);library(sjPlot)
+library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer);library(leafpop);library(sjPlot);library(kableExtra)
 # Set your working directory
 here()
 #chunk options
@@ -131,11 +133,16 @@ The coastal flooding and hurricane data from FEMA's National Risk Index (NRI) da
 The FEMA NRI data was acquired in csv format at the census tract level for the entire state of North Carolina. This csv contained information on all types of natural hazards. This data was filtered to contain only census tracts within Carteret county and only annualized frequency of hurricanes and coastal flooding.
 
 Table 2.1 Structure of Demographic Data
+```{r table1, echo=FALSE}
+Name <- c("Tract Number", "Tract Number")
+Description <- c("Percent of Population in tract", "Percent of Population in tract")
+datast <- data.frame(Name, Description)
+colnames(datast) <- c("Census Tract","Demographic Characteristic")
 
-| Census Tract | Demographic Characteristic      |
-|--------------|---------------------------------:|
-| Tract Number | Percent of Population in tract  |
-| Tract Number | Percent of Population in tract  |
+datast %>%
+kbl() %>%
+  kable_styling()
+```
 
 Table 2.2 Structure of Flooding and Hurricane Data
 
