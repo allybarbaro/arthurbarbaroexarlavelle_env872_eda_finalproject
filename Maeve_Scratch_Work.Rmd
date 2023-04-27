@@ -3,15 +3,24 @@ title: "Maeve_Scratch_Work"
 output: html_document
 date: "2023-04-17"
 ---
-
-```{r setup, include=FALSE}
+```{r}
 knitr::opts_chunk$set(echo = TRUE)
 
 #Loaded packages
 library(tidyverse);library(rvest); library(ggplot2); library(lubridate); library(here)
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+library(here)
+library(tidycensus)
+library(sf)
+library(rgdal)
+library(mapview)
+library(leaflet)
+library(shiny)
 
 #Checked working directory
-getwd()
+here()
 ```
 
 ## R Markdown
@@ -19,8 +28,342 @@ getwd()
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r wrangling race data}
+#read in race data
+carteret.race <- read_csv(here("./Data/Processed/Carteret.race.csv"))
 
-```{}
+#separating race number and percent into two data frames
+#race number
+carteret.race.number <- carteret.race[seq(1, nrow(carteret.race), 2), ]
 
+carteret.race.number <- carteret.race.number %>%
+  select("Census Tract","White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian")
+
+colnames(carteret.race.number) <-(c("TRACTCE", "White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian"))
+
+carteret.race.number$TRACTCE <- as.character(carteret.race.number$TRACTCE)
+ 
+write_csv(carteret.race.number, file = here("./Data/Processed/carteret.race.number.csv"))
+
+#Race percent
+carteret.race.percent <- carteret.race[seq(2, nrow(carteret.race), 2), ]
+carteret.race.percent <- carteret.race.percent %>%
+  select("Census Tract","White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian")
+
+colnames(carteret.race.percent) <-(c("TRACTCE", "White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian"))
+
+carteret.race.percent$TRACTCE <- as.character(carteret.race.percent$TRACTCE)
+
+write_csv(carteret.race.percent, file = here("./Data/Processed/carteret.race.percent.csv"))
+
+carteret.race.number<- read_csv(here("./Data/Processed/carteret.race.number.csv"))
+carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
+```
+
+```{pivoting race data for bar graph for laura}
+caretert.group <- carteret.race.number %>%
+  pivot_longer(cols=c("White","Black or African American","American Indian and Alaska Native","Cherokee Tribal Grouping","Sioux Tribal Grouping","Asian",),
+               names_to='Race',
+               values_to='Population')
+
+write_csv(caretert.group, file = here("./Data/Processed/write_csv(carteret.race.number.pivoted.csv"))
+
+write_csv(caretert.group, file = here("./Data/Processed/carteret.race.number.pivoted.csv"))
+```
+
+
+```{r none of this is correct but im scared to delete it}
+#loading in required data
+carteret.race.percent <- read.csv("./Data/Processed/carteret.race.percent.csv")
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.flooding) <-(c("TRACTCE", "Frequency"))
+carteret.flooding$TRACTCE <- as.character(carteret.flooding$TRACTCE)
+
+#merging 3 data frames
+listed_df = list(carteret.race.percent, carteret.flooding, carteret.shape)
+Reduce(function(x, y) merge(x, y, all=FALSE), list_df)
+
+list_df = list(carteret.race.percent, carteret.flooding, carteret.shape)
+df2 <- list_df %>% 
+  reduce(inner_join, by='TRACTCE')
+df2
+
+#making spatial
+st_write(df2, here("./Data/Processed/merged.race.flooding.shape.shp"))
+flooding_merged <- st_read("./Data/Processed/merged.race.flooding.shape.shp")
+
+mapview(flooding_merged)
+
+summary(flooding_merged$Freqncy)
+
+#selectiing max flooding tracts
+carteret.max.flooding2 <- flooding_merged %>%
+  filter(TRACTCE == 970401|970402|970502|970504)
+
+merged.race.flooding.shape <- merge(carteret.race.percent, carteret.flooding, carteret.shape, by.x = "TRACTCE", all=FALSE)
+
+merged.race.flooding.shape2 <- merge(merged.race.flooding.shape, carteret.shape)
+
+              #merge(carteret.shape)
+
+
+
+mapview(merged.race.flooding.shape.shp)
+
+#determining max flooding: 3.687
+#determining least flooding: 0.012
+summary(merged.race.flooding.shape$Frequency)
+
+#extracting max flooding tract
+carteret.max.flooding <- merged.race.flooding.shape %>%
+  filter(c(8,9,12,14))
+
+carteret.max.flooding <- merged.race.flooding.shape %>%
+  filter(TRACTCE =="970401","970402","970502","970504")
+
+carteret.max.flooding <- merged.race.flooding.shape %>%
+  filter(max(Frequency))
 
 ```
+
+```{r From aileen's edits}
+#loading in required data
+#loading in required data
+carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.flooding) <-(c("TRACTCE", "Frequency"))
+carteret.flooding$TRACTCE <- as.character(carteret.flooding$TRACTCE)
+
+#merging files
+shape.flooding <- merge(carteret.flooding, carteret.shape)
+flooding.race.shape <- merge(shape.flooding, carteret.race.percent)
+colnames(flooding.race.shape)
+
+#getting rid of % symbol
+flooding.race.shape$White <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$White))
+flooding.race.shape$Black.or.African.American <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Black.or.African.American))
+flooding.race.shape$American.Indian.and.Alaska.Native <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$American.Indian.and.Alaska.Native))
+flooding.race.shape$Cherokee.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Cherokee.Tribal.Grouping))
+flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Sioux.Tribal.Grouping))
+flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
+
+#making spatial
+#st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shp"))
+flooding_merged <- st_read("./Data/Processed/flooding.race.shp")
+
+#determining max flooding: 3.687
+#determining least flooding: 0.012
+summary(flooding_merged$Freqncy)
+
+#selecting for max flooded tracts
+carteret.max.flooding2 <- flooding_merged[flooding_merged$TRACTCE %in% c("970401","970402","970502","970504"), ]
+
+#selecting for min flooded tracts
+carteret.min.flooding <- flooding_merged[flooding_merged$TRACTCE %in% c("970603"), ]
+
+#making spatial
+#st_write(carteret.max.flooding2, here("./Data/Processed/maxfloodingcorrect.shp"))
+max_flooding <- st_read("./Data/Processed/maxfloodingcorrect.shp")
+#st_write(carteret.min.flooding, here("./Data/Processed/minfloodingcorrect.shp"))
+min_flooding <- st_read("./Data/Processed/minfloodingcorrect.shp")
+
+#updating column names
+colnames(max_flooding) <- c("Census Tract Number","Annualized Flooding Frequency","STATEFP","COUNTYF","GEOID","NAME","Censuse Tract Name","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","White Population Percent","Black or African American Population Percent","American Indian and Alaska Native Population Percent","Cherokee Tribal Grouping Population Percent","Sioux Tribal Grouping Population Percent","Asian Population Percent","geometry")
+
+colnames(min_flooding) <- c("Census Tract Number","Annualized Flooding Frequency","STATEFP","COUNTYF","GEOID","NAME","Censuse Tract Name","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","White Population Percent","Black or African American Population Percent","American Indian and Alaska Native Population Percent","Cherokee Tribal Grouping Population Percent","Sioux Tribal Grouping Population Percent","Asian Population Percent","geometry")
+
+```
+
+```{r max floding and race maps}
+#White Population Percent
+mapview(max_flooding, zcol = "White Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "White Population Percent in Tracts with Highest Annualized Flooding Frequency")
+
+#Black or African American Population Percent
+mapview(max_flooding, zcol = "Black or African American Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "Black or African American Population Percent in Tracts with Highest Annualized Flooding Frequency")
+
+#American Indian and Alaska Native Population Percent
+mapview(max_flooding, zcol = "American Indian and Alaska Native Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "American Indian and Alaska Native Population Percent in Tracts with Highest Annualized Flooding Frequency")
+
+#Cherokee Tribal Grouping Population Percent
+mapview(max_flooding, zcol = "Cherokee Tribal Grouping Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "Cherokee Tribal Grouping Population Percent in Tracts with Highest Annualized Flooding Frequency")
+
+#Sioux Tribal Grouping Population Percent
+mapview(max_flooding, zcol = "Sioux Tribal Grouping Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "Sioux Tribal Grouping Percent in Tracts with Highest Annualized Flooding Frequency")
+
+#Asian Population Percent
+mapview(max_flooding, zcol = "Asian Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Asian Population Percent in Tracts with Highest Annualized Flooding Frequency")
+
+```
+```{r min flooding and race maps}
+#White Population Percent
+mapview(min_flooding, zcol = "White Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "White Population Percent in Tract with Lowest Annualized Flooding Frequency")
+
+#Black or African American Population Percent
+mapview(min_flooding, zcol = "Black or African American Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "Black or African American Population Percent in Tract with Lowest Annualized Flooding Frequency")
+
+#American Indian and Alaska Native Population Percent
+mapview(min_flooding, zcol = "American Indian and Alaska Native Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "American Indian and Alaska Native Population Percent in Tract with Lowest Annualized Flooding Frequency")
+
+#Cherokee Tribal Grouping Population Percent
+mapview(min_flooding, zcol = "Cherokee Tribal Grouping Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "Cherokee Tribal Grouping Population Percent in Tract with Lowest Annualized Flooding Frequency")
+
+#Sioux Tribal Grouping Population Percent
+mapview(min_flooding, zcol = "Sioux Tribal Grouping Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)),
+        layer.name = "Sioux Tribal Grouping Percent in Tract with Lowest Annualized Flooding Frequency")
+
+#Asian Population Percent
+mapview(min_flooding, zcol = "Asian Population Percent",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Asian Population Percent in Tracts with Lowest Annualized Flooding Frequency")
+
+```
+
+
+```{r loading packages for Aileen's}
+#install.packages(paletteer)
+library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl);library(shinydashboard);
+library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer)
+here()
+```
+```{r working on Aileen's}
+#loading data
+carteret.race.number <- read_csv(here("./Data/Processed/carteret.race.number.csv"))
+carteret.race.percent <- read_csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+shape.and.race.number <- merge(carteret.shape, carteret.race.number, by = "TRACTCE")
+shape.and.race.percent <- merge(carteret.shape, carteret.race.percent, by = "TRACTCE")
+
+#getting rid of percent
+shape.and.race.percent$White <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$White))
+
+shape.and.race.percent$`Black or African American` <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$`Black or African American`))
+
+shape.and.race.percent$`American Indian and Alaska Native` <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$`American Indian and Alaska Native`))
+
+shape.and.race.percent$`Cherokee Tribal Grouping` <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$`Cherokee Tribal Grouping`))
+
+shape.and.race.percent$`Sioux Tribal Grouping` <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$`Sioux Tribal Grouping`))
+
+shape.and.race.percent$Asian <- as.numeric(gsub("[\\%,]", "", shape.and.race.percent$Asian))
+
+#white number
+mapview(shape.and.race.number, zcol = "White",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+#white percent
+mapview(shape.and.race.percent, zcol = "White",
+         col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+#Black or African American percent
+mapview(shape.and.race.percent, zcol = "Black or African American",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+#American Indian and Alaska Native percent
+mapview(shape.and.race.percent, zcol = "American Indian and Alaska Native",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+#Cherokee Tribal Grouping percent
+mapview(shape.and.race.percent, zcol = "Cherokee Tribal Grouping",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+#Asian Tribal Grouping percent
+mapview(shape.and.race.percent, zcol = "Asian",
+        col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)))
+
+```
+
+```{r min flooding - this is what is actually going in the final project}
+#reading in flooding frequency data
+carteret.combined.shape <- st_read("./Data/Processed/carteret.combined.shape.shp")
+
+#determine min flooding tracts number: 
+
+carteret.combined.shape %>% arrange(AnnlzFF)
+
+carteret.combined.min3flood.shape <- carteret.combined.shape[carteret.combined.shape$TRACTCE %in% c("970603","970102","970101"), ]
+
+#write shapefile
+#st_write(carteret.combined.min3flood.shape, here("./Data/Processed/carteret.combined.min3flood.shape.shp"))
+
+#read in shapefile
+carteret.combined.min3flood.shape <- st_read(here("./Data/Processed/carteret.combined.min3flood.shape.shp"))
+
+#min flooding
+mapview(carteret.combined.min3flood.shape, zcol = "AnnlzFF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Maximum Annualized Flooding In Cartert County", label = carteret.combined.min3flood.shape$NAMELSA, zoom=12) 
+
+#Population over 65 & Below Poverty Line & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "X6_o_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.minflood.shape$NAMELSA)
+
+#Population Below Poverty Line & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.minflood.shape$NAMELSA)
+
+#Percent of Carteret County Below Poverty Line and Recieved Some College Education & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "Scad_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.min3flood.shape$NAMELSA)
+
+#Percent of Carteret County 25 Years and Older Below Poverty Line & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "P2yao_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.min3flood.shape$NAMELSA)
+
+#Percent of Carteret County Males Below the Poverty Line and Employed & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.min3flood.shape$NAMELSA)
+
+#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed & Min Flooding Map
+mapview(carteret.combined.min3flood.shape, zcol = "CLF1YaO", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.min3flood.shape$NAMELSA)
+
+```
+```{r hurricane graphs - actually going in the final}
+carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
+
+#determine min flooding tracts numbers
+carteret.combined.hurricane.shape %>% arrange(AnnlzHF)
+
+#filter Carteret County by min Annualized Hurricane Frequency
+carteret.combined.minhurricane.shape <- carteret.combined.hurricane.shape[carteret.combined.hurricane.shape$TRACTCE %in% c("970801","970806"), ]
+
+#write shapefile
+#st_write(carteret.combined.minhurricane.shape, here("./Data/Processed/carteret.combined.minhurricane.shape.shp"))
+
+#read in shapefile
+carteret.combined.minhurricane.shape <- st_read(here("./Data/Processed/carteret.combined.minhurricane.shape.shp"))
+
+#Population Under 18 and Below Poverty Line & Min Hurricane Map
+mapview(carteret.combined.minhurricane.shape, zcol = "Undr18b", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Under 18 Below Poverty Line in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
+
+#Population Below Poverty Line & Min Hurricane Map
+mapview(carteret.combined.minhurricane.shape, zcol = "PpltnPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
+
+#Some college associates degree below poverty line & Min Hurricane Map 
+mapview(carteret.combined.minhurricane.shape, zcol = "Smcllgs", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line and Recieved Some College Education in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
+
+#Percent of Carteret County Males Below the Poverty Line and Employed & Min Hurricane Map
+mapview(carteret.combined.minhurricane.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$NAMELSA)
+
+#Asian Population Percent of Min Hurricane Tracts Carteret County Map
+mapview(carteret.combined.minhurricane.shape, zcol = "Asian", col.regions = c(
+paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Asian Population Percent of Carteret County in Min Annualized Hurricane Frequency Census Tracts", label = carteret.combined.minhurricane.shape$Asian)
+```
+

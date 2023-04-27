@@ -3,28 +3,685 @@ title: "Aileen_scratch_work"
 author: "Aileen Lavelle"
 date: "2023-04-18"
 output: pdf_document
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse);library(lubridate);library(here);library(knitr); library(cowplot); library(readxl);library(shinydashboard);
+library(shiny);library(leaflet);library(mapview); library(sf);library(paletteer);library(leafpop);library(sjPlot)
+here()
+#setting my own theme
+Aileentheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"),
+        axis.ticks = element_line(color = "black"), 
+        plot.background = element_rect(color= "white"))
 ```
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r Age & Sex Pivot Longer}
+#Creating pivot longer table for age & sex
+carteret.age.sex <- read_csv(here("./Data/Processed/Carteret.age.sex.csv"))
 
-```{r cars}
-summary(cars)
+#Seperating number and percents
+caretert.age.sex.percent <- carteret.age.sex[seq(2, nrow(carteret.age.sex), 2), ]
+caretert.age.sex.number <- carteret.age.sex[seq(1, nrow(carteret.age.sex), 2), ]
+
+colnames(carteret.age.sex)
+#Removing Median Age column b/c it is blank
+caretert.age.sex.percent <- caretert.age.sex.percent %>%
+  select(-("Median age (years)"))
+#pivoting so columns become rows
+caretert.age.sex.percent.pivot <- caretert.age.sex.percent %>%
+  pivot_longer(cols=c("Under 5 years","5 to 9 years","10 to 14 years","15 to 19 years","20 to 24 years","25 to 34 years","35 to 44 years","45 to 54 years","55 to 59 years","60 to 64 years","65 to 74 years","75 to 84 years", "85 years and over"),
+               names_to='Age',
+               values_to='Population') %>%
+  pivot_longer(cols=c("Male", "Female"),
+               names_to='Sex',
+               values_to='Percent') 
+write.csv(caretert.age.sex.percent,
+          file =here("./Data/Processed/Caretert.age.sex.percent.csv"))
+
+write.csv(caretert.age.sex.percent.pivot,
+          file =here("./Data/Processed/Caretert.age.sex.percent.pivot.csv"))
+
+#pivoting so columns become rows
+caretert.age.sex.number.pivot <- caretert.age.sex.number %>%
+  pivot_longer(cols=c("Under 5 years","5 to 9 years","10 to 14 years","15 to 19 years","20 to 24 years","25 to 34 years","35 to 44 years","45 to 54 years","55 to 59 years","60 to 64 years","65 to 74 years","75 to 84 years", "85 years and over","Median age (years)"),
+               names_to='Age',
+               values_to='Population') %>%
+  pivot_longer(cols=c("Male", "Female"),
+               names_to='Sex',
+               values_to='Number of Individuals') 
+
+write.csv(caretert.age.sex.number.pivot,
+          file = here("./Data/Processed/Caretert.age.sex.number.pivot.csv"))
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+```{r Education Pivot Longer}
+#Creating pivot longer table for age & sex
+carteret.education <- read_csv(here("./Data/Processed/carteret.education.csv"))
+colnames(carteret.education) <- c('Data type','Census Tract','Pop. >=25 years','Less than high school graduate','High school graduate (or equivelent)','some college, associates degree','Bachelor degree or higher')
+  
+#Separating number and percents
+caretert.education.percent.belowpoverty <- carteret.education[seq(3, nrow(carteret.education), 3), ]
+caretert.education.totalestimate <- carteret.education[seq(1, nrow(carteret.education), 3), ]
+caretert.education.belowpoverty <- carteret.education[seq(2, nrow(carteret.education), 3), ]
+colnames(carteret.education)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+write.csv(caretert.education.percent.belowpoverty,
+          file = here("./Data/Processed/caretert.education.percent.belowpoverty.csv"))
+
+caretert.education.percent.belowpoverty.pivot <- caretert.education.percent.belowpoverty %>%
+  pivot_longer(cols=c('Pop. >=25 years','Less than high school graduate','High school graduate (or equivelent)','some college, associates degree','Bachelor degree or higher'),
+               names_to='Education Attainment',
+               values_to='Percent Below Poverty Line') 
+
+caretert.education.totalestimate.pivot <- caretert.education.totalestimate %>%
+  pivot_longer(cols=c('Pop. >=25 years','Less than high school graduate','High school graduate (or equivelent)','some college, associates degree','Bachelor degree or higher'),
+               names_to='Education Attainment',
+               values_to='Total Estimate') 
+
+caretert.education.belowpoverty.pivot <- caretert.education.belowpoverty %>%
+  pivot_longer(cols=c('Pop. >=25 years','Less than high school graduate','High school graduate (or equivelent)','some college, associates degree','Bachelor degree or higher'),
+               names_to='Education Attainment',
+               values_to='Total Below Poverty Line') 
+
+write.csv(caretert.education.belowpoverty.pivot,
+          file = here("./Data/Processed/caretert.education.belowpoverty.pivot.csv"))
+write.csv(caretert.education.totalestimate.pivot,
+          file = here("./Data/Processed/caretert.education.totalestimate.pivot.csv"))
+write.csv(caretert.education.percent.belowpoverty.pivot,
+          file = here("./Data/Processed/caretert.education.percent.belowpoverty.pivot.csv"))
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r Employment Pivot Longer}
+carteret.employment <- read_csv(here("./Data/Processed/Carteret.Employment.csv"))
+
+#seperate number and percents
+carteret.employment.percent.belowpoverty <- carteret.employment[seq(3, nrow(carteret.employment), 3), ]
+carteret.employment.totalestimate <- carteret.employment[seq(1, nrow(carteret.employment), 3), ]
+carteret.employment.belowpoverty <- carteret.employment[seq(2, nrow(carteret.employment), 3), ]
+colnames(carteret.employment)
+
+colnames(carteret.employment.percent.belowpoverty) <- c("Data Type","Census Tract","Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females")
+
+#pivot longer
+carteret.employment.percent.belowpoverty.pivot <- carteret.employment.percent.belowpoverty %>%
+  pivot_longer(cols=c("Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females"),
+               names_to='Category',
+               values_to='Percent of Population') 
+
+colnames(carteret.employment.totalestimate) <- c("Data Type","Census Tract","Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females")
+
+carteret.employment.totalestimate.pivot <- carteret.employment.totalestimate %>%
+  pivot_longer(cols=c("Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females"),
+               names_to='Category',
+               values_to='Population') 
+
+colnames(carteret.employment.belowpoverty) <- c("Data Type","Census Tract","Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females")
+
+carteret.employment.belowpoverty.pivot <- carteret.employment.belowpoverty %>%
+  pivot_longer(cols=c("Civilian Labor Force 16 Years and Over","Employed","Male","Female","Unemployed","Unemployed Males","Unemployed Females"),
+               names_to='Category',
+               values_to='Population') 
+
+write.csv(carteret.employment.percent.belowpoverty,
+          file = here("./Data/Processed/carteret.employment.percent.belowpoverty.csv"))
+
+write.csv(carteret.employment.percent.belowpoverty.pivot,
+          file = here("./Data/Processed/carteret.employment.percent.belowpoverty.pivot.csv"))
+write.csv(carteret.employment.totalestimate.pivot,
+          file = here("./Data/Processed/carteret.employment.totalestimate.pivot.csv"))
+write.csv(carteret.employment.belowpoverty.pivot,
+          file = here("./Data/Processed/carteret.employment.belowpoverty.pivot.csv"))
+```
+
+```{r Poverty Pivot Longer}
+carteret.poverty <- read_csv(here("./Data/Processed/Carteret.poverty.csv"))
+
+#seperate number and percents
+carteret.poverty.percent <- carteret.poverty[seq(3, nrow(carteret.poverty), 3), ]
+carteret.poverty.totalestimate <- carteret.poverty[seq(1, nrow(carteret.poverty), 3), ]
+carteret.belowpoverty <- carteret.poverty[seq(2, nrow(carteret.poverty), 3), ]
+colnames(carteret.poverty)
+
+write.csv(carteret.poverty.percent,
+          file = here("./Data/Processed/carteret.poverty.percent.csv"))
+#pivot longer
+carteret.poverty.percent.pivot <- carteret.poverty.percent %>%
+  mutate(across(c("Census Tract"), as.numeric)) %>%
+  pivot_longer(cols=c("Population for Whom Poverty Status is Determined","Under 18 years","18 to 64 years","65 years and over"),
+               names_to='Category',
+               values_to='Percent of Population')
+
+write.csv(carteret.poverty.percent.pivot,
+          file = here("./Data/Processed/carteret.poverty.percent.pivot.csv"))
+
+carteret.poverty.totalestimate.pivot <- carteret.poverty.totalestimate %>%
+  pivot_longer(cols=c("Population for Whom Poverty Status is Determined","Under 18 years","18 to 64 years","65 years and over"),
+               names_to='Category',
+               values_to='Total Estimate of Population')
+
+write.csv(carteret.poverty.totalestimate.pivot,
+          file = here("./Data/Processed/carteret.poverty.totalestimate.pivot.csv"))
+
+carteret.belowpoverty.pivot <- carteret.belowpoverty %>%
+  pivot_longer(cols=c("Population for Whom Poverty Status is Determined","Under 18 years","18 to 64 years","65 years and over"),
+               names_to='Category',
+               values_to='Population Below Poverty Line')
+
+write.csv(carteret.belowpoverty.pivot,
+          file = here("./Data/Processed/carteret.belowpoverty.pivot.csv"))
+```
+
+```{r Carteret county with demographics}
+#loading required data
+carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.flooding) <-(c("TRACTCE", "Frequency"))
+carteret.flooding$TRACTCE <- as.character(carteret.flooding$TRACTCE)
+
+#merging files
+shape.flooding <- merge(carteret.flooding, carteret.shape)
+flooding.race.shape <- merge(shape.flooding, carteret.race.percent)
+colnames(flooding.race.shape)
+
+#getting rid of % symbol
+flooding.race.shape$White <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$White))
+flooding.race.shape$Black.or.African.American <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Black.or.African.American))
+flooding.race.shape$American.Indian.and.Alaska.Native <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$American.Indian.and.Alaska.Native))
+flooding.race.shape$Cherokee.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Cherokee.Tribal.Grouping))
+flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Sioux.Tribal.Grouping))
+flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
+
+#making spatial
+#st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shape.shp"))
+flooding.race.shape <- st_read("./Data/Processed/flooding.race.correct.shp")
+colnames(flooding.race.shape)
+
+#All Census blocks in Cartert County
+mapview(shape.and.race, zcol = "NAMELSAD", col.regions = paletteer_c("grDevices::Set 3", 30,), layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD")
+
+#white Population Map
+mapview(flooding.race.shape, zcol = "White", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County White Population", label = "White Population Percent")
+
+#Black/African American Population Map
+mapview(flooding.race.shape, zcol = "Bl__A_A", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Black or African American Population Percent", label = flooding.race.shape$TRACTCE)
+
+#American Indian and Native Alaskan Population Map
+mapview(flooding.race.shape, zcol = "A_I__A_", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Native American Population Percent", label = flooding.race.shape$TRACTCE)
+
+#Asian Population Map
+mapview(flooding.race.shape, zcol = "Asian", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Asian Population Percent", label = flooding.race.shape$TRACTCE)
+
+```
+
+
+```{r Caretert County & Racial Population by tract }
+#loading in required data
+carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.flooding) <-(c("TRACTCE", "Frequency"))
+carteret.flooding$TRACTCE <- as.character(carteret.flooding$TRACTCE)
+
+#merging files
+shape.flooding <- merge(carteret.flooding, carteret.shape)
+flooding.race.shape <- merge(shape.flooding, carteret.race.percent)
+colnames(flooding.race.shape)
+
+#getting rid of % symbol
+flooding.race.shape$White <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$White))
+flooding.race.shape$Black.or.African.American <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Black.or.African.American))
+flooding.race.shape$American.Indian.and.Alaska.Native <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$American.Indian.and.Alaska.Native))
+flooding.race.shape$Cherokee.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Cherokee.Tribal.Grouping))
+flooding.race.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Sioux.Tribal.Grouping))
+flooding.race.shape$Asian <- as.numeric(gsub("[\\%,]", "", flooding.race.shape$Asian))
+
+#making spatial
+#st_write(flooding.race.shape, here("./Data/Processed/flooding.race.shape.shp"))
+flooding.race.shape <- st_read("./Data/Processed/flooding.race.correct.shp")
+colnames(flooding.race.shape)
+
+#Map of Cartert County by Annualized Flooding Frequency
+mapview(flooding.race.shape, zcol = "Freqncy", col.regions = c(paletteer_d("RColorBrewer::YlOrRd")), layer.name = "Carteret County Annualized Flooding Frequency", label = flooding.race.shape$NAMELSAD)
+
+#selecting for max flooded tracts
+carteret.max.flooding2 <- flooding.race.shape[flooding.race.shape$TRACTCE %in% c("970401","970402","970502","970504"), ]
+
+#making spatial
+#st_write(carteret.max.flooding2, here("./Data/Processed/maxfloodingcorrect.shp"))
+max_flooding <- st_read("./Data/Processed/maxfloodingcorrect.shp")
+
+#determining max flooding: 3.687
+#determining least flooding: 0.012
+
+#change column names
+colnames(max_flooding) <- c("Census Tract Number","Annualized Flooding Frequency","STATEFP","COUNTYF","GEOID","NAME","Censuse Tract Name","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","White Population Percent","Black or African American Population Percent","American Indian and Alaska Native Population Percent","Cherokee Tribal Grouping Population Percent","Sioux Tribal Grouping Population Percent","Asian Population Percent","geometry")
+
+
+#map of most flooded and Black/African American population
+mapview(max_flooding, zcol = "Black or African American Population Percent", layer.name = "% Black or African American Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
+
+#map of most flooded and White population
+mapview(max_flooding, zcol = "White Population Percent", layer.name = "% White Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
+
+#map of most flooded and Asian population
+mapview(max_flooding, zcol = "Asian Population Percent", layer.name = "% Asian Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
+
+#map of most flooded and Native American population
+mapview(max_flooding, zcol = "American Indian and Alaska Native Population Percent", layer.name = "% Native American Population in Census Tracts in Carteret County with Most Flooding", Legend = TRUE, label = max_flooding$'Census Tract Number')
+```
+
+```{r Carteret County Race & Max Flooding & correlation tests}
+#loading in required data
+carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.employment.percent.belowpoverty <- read_csv(here('./Data/Processed/carteret.employment.percent.belowpoverty.csv'))
+carteret.poverty.percent <- read_csv(here('./Data/Processed/carteret.poverty.csv'))
+carteret.age.sex.percent <-  read_csv(here("Data/Processed/Caretert.age.sex.percent.csv"))
+carteret.shape <- st_read(here('Data/Processed/carteret_tracts.shp'))
+carteret.education.percent <- read_csv(here("Data/Processed/caretert.education.percent.belowpoverty.csv"))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.flooding) <- c("TRACTCE","Annualized Flood Frequency")
+colnames(carteret.employment.percent.belowpoverty) <- c("","Data Type","TRACTCE","Civilian Labor Force 16 Years and Over","Percent of Population Employed","Employed Male","Employed Female","Unemployed","Unemployed Males","Unemployed Females")
+carteret.employment.percent.belowpoverty$TRACTCE <- as.character(carteret.employment.percent.belowpoverty$TRACTCE)
+colnames(carteret.poverty.percent) <- c("Data Type","TRACTCE","Population below Poverty Line","Under 18 & below poverty line", "18-64 & below poverty line", "65 & over & below poverty line")
+carteret.poverty.percent$TRACTCE <- as.character(carteret.poverty.percent$TRACTCE)
+colnames(carteret.age.sex.percent) <- c("","Data Type","TRACTCE","Male","Female","Under 5 years","5 to 9 years","10 to 14 years","15 to 19 years","20 to 24 years","25 to 34 years","35 to 44 years","45 to 54 years","55 to 59 years","60 to 64 years","65 to 74 years","75 to 84 years","85 years and over")
+carteret.age.sex.percent$TRACTCE <- as.character(carteret.age.sex.percent$TRACTCE)
+colnames(carteret.education.percent) <- c("","Data Type","TRACTCE","Population 25 years and over & below poverty line","Less than high school graduate & below poverty line","High school graduate (includes equivalency) & below poverty line","Some college, associates degree & below poverty line","Bachelors degree or higher & below poverty line")
+carteret.education.percent$TRACTCE <- as.character(carteret.education.percent$TRACTCE)
+
+#merging files
+race.flooding <- merge(carteret.flooding, carteret.race.percent)
+flooding.race.employment <- merge(race.flooding, carteret.employment.percent.belowpoverty)
+education.flood.race.employment <- merge(flooding.race.employment, carteret.education.percent)
+#sex.age.education.flood.race.employment <- merge(education.flood.race.employment, carteret.age.sex.percent.pivot)
+combined.demographics <- merge(education.flood.race.employment, carteret.poverty.percent)
+
+colnames(carteret.race.percent)
+#cleaning file
+colnames(combined.demographics) 
+combined.demographics <- combined.demographics %>%
+  select("TRACTCE","Annualized Flood Frequency","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","Civilian Labor Force 16 Years and Over","Percent of Population Employed","Employed Male","Employed Female","Unemployed","Unemployed Males","Unemployed Females","Population 25 years and over & below poverty line","Less than high school graduate & below poverty line","High school graduate (includes equivalency) & below poverty line","Some college, associates degree & below poverty line","Bachelors degree or higher & below poverty line","Population below Poverty Line","Under 18 & below poverty line", "18-64 & below poverty line", "65 & over & below poverty line")
+
+#getting rid of % symbol
+combined.demographics$White <- as.numeric(gsub("[\\%,]", "", combined.demographics$White))
+combined.demographics$Black.or.African.American <- as.numeric(gsub("[\\%,]", "", combined.demographics$Black.or.African.American))
+combined.demographics$American.Indian.and.Alaska.Native <- as.numeric(gsub("[\\%,]", "", combined.demographics$American.Indian.and.Alaska.Native))
+combined.demographics$Cherokee.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", combined.demographics$Cherokee.Tribal.Grouping))
+combined.demographics$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", combined.demographics$Sioux.Tribal.Grouping))
+combined.demographics$Asian <- as.numeric(gsub("[\\%,]", "", combined.demographics$Asian))
+combined.demographics$`Civilian Labor Force 16 Years and Over` <- as.numeric(gsub("[\\%,]", "",combined.demographics$`Civilian Labor Force 16 Years and Over`))
+combined.demographics$`Percent of Population Employed` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Percent of Population Employed`))
+combined.demographics$`Employed Male` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Employed Male`))
+combined.demographics$`Employed Female` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Employed Female`))
+combined.demographics$`Unemployed` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Unemployed`))
+combined.demographics$`Unemployed Males` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Unemployed Males`))
+combined.demographics$`Unemployed Females` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Unemployed Females`))
+combined.demographics$`Population 25 years and over & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Population 25 years and over & below poverty line`))
+combined.demographics$`Less than high school graduate & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Less than high school graduate & below poverty line`))
+combined.demographics$`Less than high school graduate & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Less than high school graduate & below poverty line`))
+combined.demographics$`High school graduate (includes equivalency) & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`High school graduate (includes equivalency) & below poverty line`))
+combined.demographics$`Some college, associates degree & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Some college, associates degree & below poverty line`))
+combined.demographics$`Bachelors degree or higher & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Bachelors degree or higher & below poverty line`))
+combined.demographics$`Population below Poverty Line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Population below Poverty Line`))
+combined.demographics$`Under 18 & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`Under 18 & below poverty line`))
+combined.demographics$`18-64 & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`18-64 & below poverty line`))
+combined.demographics$`65 & over & below poverty line` <- as.numeric(gsub("[\\%,]", "", combined.demographics$`65 & over & below poverty line`))
+
+#cleaning column names
+colnames(combined.demographics) <- c("TRACTCE", "AnnualizedFloodFrequency","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline", "Bachelorsdegreeorhigherbelowpovertyline","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline")
+
+#write.csv(combined.demographics,
+          #file = here("./Data/Processed/combined.demographics.csv"))
+
+#conducting correlation test
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$White)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Black.or.African.American)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Asian)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$American.Indian.and.Alaska.Native)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Cherokee.Tribal.Grouping)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Sioux.Tribal.Grouping)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$LaborForce16YearsandOver)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$PercentEmployed)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$EmployedMale)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$EmployedFemale)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Unemployed)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$UnemployedMales)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$UnemployedFemales)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`25over&belowpovertyline`)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Lessthanhighschoolgraduatebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Highschoolgraduatebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Somecollegeassociatesdegreebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Bachelorsdegreeorhigherbelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$PopulationbelowPovertyLine)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$Under18belowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`18to64belowpovertyline`)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`65overbelowpovertyline`)
+#resulting p-value is < 0.05 so it is significant!
+
+#significant results (p<0.05): `65overbelowpovertyline`
+#Other small p-values (p<0.2): PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, `25over&belowpovertyline`, EmployedMale, LaborForce16YearsandOver
+```
+
+```{r Mapping Significant Factors}
+#loading in required data
+carteret.employment.percent.belowpoverty <- read_csv(here('./Data/Processed/carteret.employment.percent.belowpoverty.csv'))
+carteret.poverty.percent <- read_csv(here('./Data/Processed/carteret.poverty.csv'))
+carteret.education.percent <- read_csv(here("Data/Processed/caretert.education.percent.belowpoverty.csv"))
+carteret.flooding <- read_csv(here('./Data/Processed/Carteret_Flooding_Processed.csv'))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(carteret.flooding) <- c("TRACTCE","Annualized Flood Frequency")
+colnames(carteret.employment.percent.belowpoverty) <- c("","Data Type","TRACTCE","Civilian Labor Force 16 Years and Over","Percent of Population Employed","Employed Male","Employed Female","Unemployed","Unemployed Males","Unemployed Females")
+carteret.employment.percent.belowpoverty$TRACTCE <- as.character(carteret.employment.percent.belowpoverty$TRACTCE)
+colnames(carteret.poverty.percent) <- c("Data Type","TRACTCE","Population below Poverty Line","Under 18 & below poverty line", "18-64 & below poverty line", "65 & over & below poverty line")
+carteret.poverty.percent$TRACTCE <- as.character(carteret.poverty.percent$TRACTCE)
+colnames(carteret.education.percent) <- c("","Data Type","TRACTCE","Population 25 years and over & below poverty line","Less than high school graduate & below poverty line","High school graduate (includes equivalency) & below poverty line","Some college, associates degree & below poverty line","Bachelors degree or higher & below poverty line")
+carteret.education.percent$TRACTCE <- as.character(carteret.education.percent$TRACTCE)
+
+#merging files
+shape.flooding <- merge(carteret.flooding, carteret.shape)
+flooding.poverty.shape <- merge(shape.flooding, carteret.poverty.percent)
+flooding.poverty.employ.shape <-  merge(flooding.poverty.shape, carteret.employment.percent.belowpoverty)
+carteret.combined.shape <- merge(flooding.poverty.employ.shape, carteret.education.percent)
+
+#removing random non-data columns 
+carteret.combined.shape <- carteret.combined.shape %>%
+  select(-(Var.30)) %>%
+  select(-(Var.22))
+
+#getting rid of % symbol
+carteret.combined.shape$`Civilian Labor Force 16 Years and Over` <- as.numeric(gsub("[\\%,]", "",carteret.combined.shape$`Civilian Labor Force 16 Years and Over`))
+carteret.combined.shape$`Percent of Population Employed` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Percent of Population Employed`))
+carteret.combined.shape$`Employed Male` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Employed Male`))
+carteret.combined.shape$`Employed Female` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Employed Female`))
+carteret.combined.shape$`Unemployed` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Unemployed`))
+carteret.combined.shape$`Unemployed Males` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Unemployed Males`))
+carteret.combined.shape$`Unemployed Females` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Unemployed Females`))
+carteret.combined.shape$`Population 25 years and over & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Population 25 years and over & below poverty line`))
+carteret.combined.shape$`Less than high school graduate & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Less than high school graduate & below poverty line`))
+carteret.combined.shape$`Less than high school graduate & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Less than high school graduate & below poverty line`))
+carteret.combined.shape$`High school graduate (includes equivalency) & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`High school graduate (includes equivalency) & below poverty line`))
+carteret.combined.shape$`Some college, associates degree & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Some college, associates degree & below poverty line`))
+carteret.combined.shape$`Bachelors degree or higher & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Bachelors degree or higher & below poverty line`))
+carteret.combined.shape$`Population below Poverty Line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Population below Poverty Line`))
+carteret.combined.shape$`Under 18 & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`Under 18 & below poverty line`))
+carteret.combined.shape$`18-64 & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`18-64 & below poverty line`))
+carteret.combined.shape$`65 & over & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.shape$`65 & over & below poverty line`))
+
+
+#making spatial
+#st_write(carteret.combined.shape, here("./Data/Processed/carteret.combined.shape.shp"))
+carteret.combined.shape <- st_read("./Data/Processed/carteret.combined.shape.shp")
+colnames(carteret.combined.shape)
+
+#Population Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "PpltbPL", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+
+#Population over 65 & Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+
+#Percent of Carteret County Below Poverty Line and Recieved Some College Education Map
+mapview(carteret.combined.shape, zcol = "Scad.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.shape$NAMELSA)
+
+#Percent of Carteret County 25 Years and Older Below Poverty Line Map
+mapview(carteret.combined.shape, zcol = "P2yao.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.shape$NAMELSA)
+
+#Percent of Carteret County Males Below the Poverty Line and Employed Map
+mapview(carteret.combined.shape, zcol = "EmplydM", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.shape$NAMELSA)
+
+#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed Map
+mapview(carteret.combined.shape, zcol = "CLF1YaO", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.shape$NAMELSA)
+
+#determining max flooding: 3.687
+#determining least flooding: 0.012
+
+#filter the combined data for just max flooded tracts
+carteret.combined.shape$TRACTCE <- as.character(carteret.combined.shape$TRACTCE)
+carteret.combined.maxflood.shape <- carteret.combined.shape[carteret.combined.shape$TRACTCE %in% c("970401","970402","970502","970504"), ]
+#st_write(carteret.combined.maxflood.shape, here("./Data/Processed/carteret.combined.maxflood.shape.shp"))
+colnames(carteret.combined.maxflood.shape)
+
+#max flooding
+mapview(carteret.combined.maxflood.shape, zcol = "AnnlzFF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Maximum Annualized Flooding In Cartert County", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
+
+#Population Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "PpltbPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
+
+#blank census tracts map
+m1 <- mapview(carteret.shape, zcol = "NAMELSAD", color = 'black', alpha.regions = 0, layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD")
+m1
+
+#Population over 65 & Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
+
+#Percent of Carteret County Below Poverty Line and Recieved Some College Education & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "Scad.bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.maxflood.shape$NAMELSA)
+
+#Percent of Carteret County 25 Years and Older Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "P2yao.bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County 25 Years and Older Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
+
+#Percent of Carteret County Males Below the Poverty Line and Employed & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
+
+#Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed & Max Flooding Map
+mapview(carteret.combined.maxflood.shape, zcol = "CLF1YaO", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Civilian Labor Force 16 Years and Over Below the Poverty Line and Employed", label = carteret.combined.maxflood.shape$NAMELSA)
+```
+
+```{r Factors & Carteret County Hurricane Correlation}
+#loading in required data
+Carteret_Hurricanes <- read_csv("Data/Processed/Carteret_Hurricanes_Processed.csv")
+carteret.employment.percent.belowpoverty <- read_csv(here('./Data/Processed/carteret.employment.percent.belowpoverty.csv'))
+carteret.poverty.percent <- read_csv(here('./Data/Processed/carteret.poverty.csv'))
+carteret.education.percent <- read_csv(here("Data/Processed/caretert.education.percent.belowpoverty.csv"))
+carteret.shape <- st_read(here('./Data/Processed/carteret_tracts.shp'))
+carteret.race.percent <- read.csv(here("./Data/Processed/carteret.race.percent.csv"))
+colnames(carteret.race.percent)
+
+#change column names for flooding so that "TRACTCE" is in common
+colnames(Carteret_Hurricanes) <- c("TRACTCE","Annualized Hurricane Frequency")
+Carteret_Hurricanes$TRACTCE <- as.character(Carteret_Hurricanes$TRACTCE)
+colnames(carteret.employment.percent.belowpoverty) <- c("","Data Type","TRACTCE","Civilian Labor Force 16 Years and Over","Percent of Population Employed","Employed Male","Employed Female","Unemployed","Unemployed Males","Unemployed Females")
+carteret.employment.percent.belowpoverty$TRACTCE <- as.character(carteret.employment.percent.belowpoverty$TRACTCE)
+colnames(carteret.poverty.percent) <- c("Data Type","TRACTCE","Population below Poverty Line","Under 18 & below poverty line", "18-64 & below poverty line", "65 & over & below poverty line")
+carteret.poverty.percent$TRACTCE <- as.character(carteret.poverty.percent$TRACTCE)
+colnames(carteret.education.percent) <- c("","Data Type","TRACTCE","Population 25 years and over & below poverty line","Less than high school graduate & below poverty line","High school graduate (includes equivalency) & below poverty line","Some college, associates degree & below poverty line","Bachelors degree or higher & below poverty line")
+carteret.education.percent$TRACTCE <- as.character(carteret.education.percent$TRACTCE)
+
+#merging files
+shape.hurricane <- merge(Carteret_Hurricanes, carteret.shape)
+hurricane.poverty.shape <- merge(shape.hurricane, carteret.poverty.percent)
+hurricane.poverty.employ.shape <-  merge(hurricane.poverty.shape, carteret.employment.percent.belowpoverty)
+hurricane.poverty.employ.shape.race <- merge(hurricane.poverty.employ.shape, carteret.race.percent)
+carteret.combined.hurricane.shape <- merge(hurricane.poverty.employ.shape.race, carteret.education.percent)
+
+#removing random non-data columns 
+carteret.combined.hurricane.shape <- carteret.combined.hurricane.shape %>%
+  select(-(Var.36)) %>%
+  select(-(Var.22))
+
+#getting rid of % symbol
+carteret.combined.hurricane.shape$`Civilian Labor Force 16 Years and Over` <- as.numeric(gsub("[\\%,]", "",carteret.combined.hurricane.shape$`Civilian Labor Force 16 Years and Over`))
+carteret.combined.hurricane.shape$`Percent of Population Employed` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Percent of Population Employed`))
+carteret.combined.hurricane.shape$`Employed Male` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Employed Male`))
+carteret.combined.hurricane.shape$`Employed Female` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Employed Female`))
+carteret.combined.hurricane.shape$`Unemployed` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Unemployed`))
+carteret.combined.hurricane.shape$`Unemployed Males` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Unemployed Males`))
+carteret.combined.hurricane.shape$`Unemployed Females` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Unemployed Females`))
+carteret.combined.hurricane.shape$`Population 25 years and over & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Population 25 years and over & below poverty line`))
+carteret.combined.hurricane.shape$`Less than high school graduate & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Less than high school graduate & below poverty line`))
+carteret.combined.hurricane.shape$`Less than high school graduate & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Less than high school graduate & below poverty line`))
+carteret.combined.hurricane.shape$`High school graduate (includes equivalency) & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`High school graduate (includes equivalency) & below poverty line`))
+carteret.combined.hurricane.shape$`Some college, associates degree & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Some college, associates degree & below poverty line`))
+carteret.combined.hurricane.shape$`Bachelors degree or higher & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Bachelors degree or higher & below poverty line`))
+carteret.combined.hurricane.shape$`Population below Poverty Line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Population below Poverty Line`))
+carteret.combined.hurricane.shape$`Under 18 & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`Under 18 & below poverty line`))
+carteret.combined.hurricane.shape$`18-64 & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`18-64 & below poverty line`))
+carteret.combined.hurricane.shape$`65 & over & below poverty line` <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$`65 & over & below poverty line`))
+carteret.combined.hurricane.shape$White <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$White))
+carteret.combined.hurricane.shape$Black.or.African.American <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$Black.or.African.American))
+carteret.combined.hurricane.shape$American.Indian.and.Alaska.Native <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$American.Indian.and.Alaska.Native))
+carteret.combined.hurricane.shape$Cherokee.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$Cherokee.Tribal.Grouping))
+carteret.combined.hurricane.shape$Sioux.Tribal.Grouping <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$Sioux.Tribal.Grouping))
+carteret.combined.hurricane.shape$Asian <- as.numeric(gsub("[\\%,]", "", carteret.combined.hurricane.shape$Asian))
+
+
+#making spatial
+#st_write(carteret.combined.hurricane.shape, here("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp"))
+carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
+
+#change the names back so that the correlation makes sense
+colnames(carteret.combined.hurricane.shape) <- c("TRACTCE","DataType","AnnualizedHurricaneFrequency","STATEFP","COUNTYF","GEOID","NAME","NAMELSA","MTFCC","FUNCSTA","ALAND","AWATER","INTPTLA","INTPTLO","Shp_Lng","Shap_Ar","PopulationbelowPovertyLine","Under18belowpovertyline","18to64belowpovertyline","65overbelowpovertyline","LaborForce16YearsandOver","PercentEmployed","EmployedMale","EmployedFemale","Unemployed","UnemployedMales","UnemployedFemales","White","Black.or.African.American","American.Indian.and.Alaska.Native","Cherokee.Tribal.Grouping","Sioux.Tribal.Grouping","Asian","25over&belowpovertyline","Lessthanhighschoolgraduatebelowpovertyline","Highschoolgraduatebelowpovertyline","Somecollegeassociatesdegreebelowpovertyline","Bachelorsdegreeorhigherbelowpovertyline","geometry")
+
+#conducting hurricane correlation tests
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$White)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Black.or.African.American)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Asian)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$American.Indian.and.Alaska.Native)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Cherokee.Tribal.Grouping)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Sioux.Tribal.Grouping)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$LaborForce16YearsandOver)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$PercentEmployed)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$EmployedMale)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$EmployedFemale)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Unemployed)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$UnemployedMales)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$UnemployedFemales)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`25over&belowpovertyline`)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Lessthanhighschoolgraduatebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Highschoolgraduatebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Somecollegeassociatesdegreebelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Bachelorsdegreeorhigherbelowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$PopulationbelowPovertyLine)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$Under18belowpovertyline)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`18to64belowpovertyline`)
+#resulting p-value is > 0.05 so it is not significant
+cor.test(carteret.combined.hurricane.shape$AnnualizedHurricaneFrequency, carteret.combined.hurricane.shape$`65overbelowpovertyline`)
+#resulting p-value is > 0.05 so it is not significant
+
+#low p vale factors (p<0.2): Under18belowpovertyline, PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, EmployedMale PercentEmployed, Asian
+```
+
+```{r Significant Factors & Hurricane Maps}
+#making spatial
+#st_write(carteret.combined.hurricane.shape, here("./Data/Processed/carteret.combined.hurricane.shape.shp"))
+carteret.combined.hurricane.shape <- st_read("./Data/Processed/carteret.combined.hurricane.shape.corrected.actually.shp")
+colnames(carteret.combined.hurricane.shape)
+
+#maps of importance for hurricanes
+
+#Population Below Poverty Line Map
+mapview(carteret.combined.hurricane.shape, zcol = "PpltnPL", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Population Below Poverty Line", label = carteret.combined.hurricane.shape$NAMELSA) 
+
+#Population Under 18 and Below Poverty Line Map
+mapview(carteret.combined.hurricane.shape, zcol = "Undr18b", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Population Under 18 and Below Poverty Line", label = carteret.combined.hurricane.shape$NAMELSA)
+
+#Percent of Carteret County Below Poverty Line and Received Some College Education Map
+mapview(carteret.combined.hurricane.shape, zcol = "Smcllgs", col.regions = c(
+paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Percent of Carteret County Below Poverty Line and Recieved Some College Education", label = carteret.combined.hurricane.shape$NAMELSA)
+
+#Asian Population Percent of Carteret County Map
+mapview(carteret.combined.hurricane.shape, zcol = "Asian", col.regions = c(
+paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Asian Population Percent of Carteret County", label = carteret.combined.hurricane.shape$Asian)
+
+#Percent of Carteret County Males Below the Poverty Line and Employed Map
+mapview(carteret.combined.hurricane.shape, zcol = "EmplydM", col.regions = c(paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed", label = carteret.combined.hurricane.shape$NAMELSA)
+
+#Percent of Carteret County Employed Map
+mapview(carteret.combined.hurricane.shape, zcol = "PrcntEm", col.regions = c(
+paletteer_c("ggthemes::Red-Green-Gold Diverging", 30)), layer.name = "Percent of Carteret County Below the Poverty Line and Employed", label = carteret.combined.hurricane.shape$NAMELSA)
+
+
+summary(carteret.combined.hurricane.shape$AnnlzHF)
+#determining max hurricane: 3.0792
+#determining least flooding: 0.3870
+
+#Annualized Hurricane Frequency in Carteret County Map
+mapview(carteret.combined.hurricane.shape, zcol = "AnnlzHF", col.regions = c(
+paletteer_c("ggthemes::Temperature Diverging", 30)), layer.name = "Annualized Hurricane Frequency in Carteret County", label = carteret.combined.hurricane.shape$NAMELSA)
+
+#filter Carteret County by Max Annualized Hurricane Frequency
+carteret.combined.maxhurricane.shape <- carteret.combined.hurricane.shape[carteret.combined.hurricane.shape$TRACTCE %in% c("971003","970903"), ]
+#st_write(carteret.combined.hurricane.shape, here("./Data/Processed/carteret.combined.maxhurricane.shape.shp"))
+
+
+#Population Below Poverty Line & Max Hurricane Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "PpltnPL", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Population over 65 & Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "X65vrblw", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Over 65 and Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Percent of Carteret County Below Poverty Line and Received Some College Education & Max Flooding Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "Smcllgs", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below Poverty Line and Recieved Some College Education in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Percent of Carteret County under 18 Below Poverty Line & Max Flooding Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "Undr18b", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Under 18 Below Poverty Line in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Percent of Carteret County Males Below the Poverty Line and Employed & Max Flooding Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "EmplydM", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Males Below the Poverty Line and Employed in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Percent of Carteret County Employed Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "PrcntEm", col.regions = c(
+paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Population Below the Poverty Line and Employed in Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$NAMELSA)
+
+#Asian Population Percent of Carteret County Map
+mapview(carteret.combined.maxhurricane.shape, zcol = "Asian", col.regions = c(
+paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Asian Population Percent of Carteret Countyin Max Annualized Hurricane Frequency Census Tracts", label = carteret.combined.maxhurricane.shape$Asian)
+```

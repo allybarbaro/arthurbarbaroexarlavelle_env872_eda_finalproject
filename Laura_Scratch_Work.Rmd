@@ -8,7 +8,7 @@ date: "2023-04-14"
 knitr::opts_chunk$set(echo = TRUE)
 
 #Loaded packages
-library(tidyverse);library(rvest); library(ggplot2); library(lubridate); library(here); library(sf)
+library(tidyverse);library(rvest); library(ggplot2); library(lubridate); library(here); library(sf); library(data.table)
 
 #Checked working directory
 getwd()
@@ -27,12 +27,12 @@ NC_Hazard <- read.csv(file = here("Data/Raw/NRI_Table_CensusTracts_NorthCarolina
 #Filtered data for coastal flooding in Carteret County
 Carteret_Flooding <- NC_Hazard %>%
   filter(COUNTY == "Carteret") %>%
-  select(TRACT, POPULATION, CFLD_AFREQ)
+  select(TRACT, CFLD_AFREQ)
 
 #Filtered data for hurricanes in Carteret County
 Carteret_Hurricanes <- NC_Hazard %>%
   filter(COUNTY == "Carteret") %>%
-  select(TRACT, POPULATION, HRCN_AFREQ)
+  select(TRACT, HRCN_AFREQ)
 
 #Saved processed datasets
 write.csv(Carteret_Flooding, row.names = FALSE, file = "./Data/Processed/Carteret_Flooding_Processed.csv")
@@ -41,30 +41,72 @@ write.csv(Carteret_Hurricanes, row.names = FALSE, file = "./Data/Processed/Carte
 
 ```
 
-```{r}
+```{r Created plots, warning=FALSE}
 
 #Bar graph of racial composition of each census tract (later to highlight carteret county)
+Carteret_Race <- read.csv(file = here("Data/Processed/carteret.race.number.pivoted.csv"), stringsAsFactors = TRUE)
 
+colnames(Carteret_Race) <- c("Census.Tract","Race","Population")
+Carteret_Race$Census.Tract <- as.factor(Carteret_Race$Census.Tract)
+Carteret_Race$Population <- as.numeric(gsub(",","",Carteret_Race$Population))
 
+Race_Plot <- ggplot(Carteret_Race, aes(x = Census.Tract, y=Population, fill=Race)) + geom_bar(stat='identity', width=2,position='dodge') + 
+  labs(title = "Racial Composition of Each Census Tract",
+         x = "Census Tract",
+         y = "Population") +
+  theme(legend.position="bottom",legend.text=element_text(size=5),legend.title = element_text(size=7),axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 0.5)) + 
+  labs(fill="Race")
 
-#Bar graph of annualized frequency of coastal flooding of each census
+print(Race_Plot)
 
+#Bar graph of annualized frequency of coastal flooding of each census tract
+Carteret_Flooding$TRACT <- as.factor(Carteret_Flooding$TRACT)
 
+Flooding_Plot <- ggplot(Carteret_Flooding, aes(x = TRACT, y = CFLD_AFREQ)) +
+  geom_col() + 
+  labs(title="Annualized Frequency of Coastal Flooding by Census Tract", x="Census Tract", y="Annualized Frequency of Coastal Flooding") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  ylim(0,4)
+
+print(Flooding_Plot)
 
 #Bar graph of annualized frequency of hurricanes of each census tract
+Carteret_Hurricanes$TRACT <- as.factor(Carteret_Hurricanes$TRACT)
 
+Hurricanes_Plot <- ggplot(Carteret_Hurricanes, aes(x = TRACT, y = HRCN_AFREQ)) +
+  geom_col() + 
+  labs(title="Annualized Frequency of Hurricanes by Census Tract", x="Census Tract", y="Annualized Frequency of Hurricanes") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  ylim(0,3.5)
+
+print(Hurricanes_Plot)
 
 
 ```
 
 
+```{r RShiny}
+ui <- fluidPage(
+  titlePanel(title = h4("Racial Composition of Each Census Tract", align="center")),
+  sidebarPanel(
 
-## Including Plots
+    #radioButtons("Demographics", "Select Demographics of Interest",
+                 choices = c("White", "Black or African American", "American Indian and Alaska Native", "Cherokee Tribal Grouping", "Sioux Tribal Grouping", "Asian")),
 
-You can also embed plots, for example:
+  mainPanel(
+    plotOutput("bar",height = 500))
+)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+server <- function(input,output){
+  output$bar <- renderPlot({
+   ggplot(Carteret_Race, aes(x = Census.Tract, y=Population, fill=Race)) + geom_bar(stat='identity', width=2,position='dodge') + 
+  labs(title = "Racial Composition of Each Census Tract",
+         x = "Census Tract",
+         y = "Population") +
+  theme(legend.position="bottom",legend.text=element_text(size=4),legend.title = element_text(size=6),axis.text.x = element_text(angle = 60, vjust = 0.5, hjust = 0.5)) + 
+  labs(fill="Race")
+  })
+}
+shinyApp(ui=ui, server=server)
 ```
-
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
