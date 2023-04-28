@@ -158,24 +158,24 @@ kbl() %>%
 
 The exploratory analysis of the data involved visualizing the racial demographic data spatially and graphing the hazard data by census tract. These maps depict different racial groups at the census tract level. The study area is shown in Figure 3.1 below. All census tracts within Carteret county are highlighted in Figure 3.2 below. Figure 3.3 illustrates percent of white population by census tract, while Figure 3.4 shows the same for Black and African American population, Figure 3.5 for American Indian and Alaskan Native, and Figure 3.6 for Asian population. Figure 3.7 is a graph representing the racial makeup of each census tract. Figure 3.8 details the annualized frequency of coastal flooding for each census tract, while Figure 3.9 shows the annualized frequency of hurricanes by census tract. These initial maps and plots set the stage for our later analysis. Figures 3.9.1 and 3.9.2 provide the census tracts with the maximum and minimum annualized flooding. **Should I say a sentence about why we only map racial categories here and not other demo variables? or it doesn't matter?**
 
-```{r Figure 3.1, fig.cap="Map of Carteret County by census tract.", echo=FALSE}
+```{r Figure 3.1, fig.cap= "Map of Carteret County by census tract.", echo=FALSE}
 m1 <- mapview(carteret.shape, zcol = "NAMELSAD", color = 'black', alpha.regions = 0, layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD")
 m1
 ```
 Figure 3.1. Map of Carteret County study area. 
-```{r Figure 3.2, fig.cap="Map of all census tracts in Carteret County.", echo=FALSE}
+```{r Figure 3.2, fig.cap= "Map of all census tracts in Carteret County.", echo=FALSE}
 mapview(flooding.race.shape, zcol = "NAMELSA", col.regions = paletteer_c("grDevices::Set 3", 30,), layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSA")
 ```
 Figure 3.2. Map of Carteret County census tracts.
-```{r Figure 3.3, fig.cap="Map of White population by census tract.", echo=FALSE}
+```{r Figure 3.3, fig.cap= "Map of White population by census tract.", echo=FALSE}
 mapview(flooding.race.shape, zcol = "White", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County White Population", label = "White Population Percent")
 ```
 Figure 3.3. Map of % White population by census tract.
-```{r Figure 3.4, fig.cap="Map of Black or African American population by census tract.", echo=FALSE}
+```{r Figure 3.4, fig.cap= "Map of Black or African American population by census tract.", echo=FALSE}
 mapview(flooding.race.shape, zcol = "Bl__A_A", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Black or African American Population Percent", label = flooding.race.shape$TRACTCE)
 ```
 Figure 3.4. Map of % Black or African American population by census tract.
-```{r Figure 3.5, fig.cap="Map of American Indian and Alaska Native population by census tract.", echo=FALSE}
+```{r Figure 3.5, fig.cap= "Map of American Indian and Alaska Native population by census tract.", echo=FALSE}
 mapview(flooding.race.shape, zcol = "A_I__A_", col.regions = c(paletteer_c("ggthemes::Sunset-Sunrise Diverging", 30)), layer.name = "Carteret County Native American Population Percent", label = flooding.race.shape$TRACTCE)
 ```
 Figure 3.5. Map of % American Indian and Alaska Native population by census tract.
@@ -185,7 +185,7 @@ mapview(flooding.race.shape, zcol = "Asian", col.regions = c(paletteer_c("ggthem
 ```
 Figure 3.6. Map of % Asian population by census tract.
 
-```{r Figure 3.7, fig.cap= "Figure 3.7 Racial Composition of Each Census Tract.", echo=FALSE}
+```{r Figure 3.7, echo=FALSE}
 Carteret_Race <- read.csv(file = here("Data/Processed/carteret.race.number.pivoted.csv"), stringsAsFactors = TRUE)
 
 colnames(Carteret_Race) <- c("Census.Tract","Race","Population")
@@ -202,7 +202,9 @@ Race_Plot <- ggplot(Carteret_Race, aes(x = Census.Tract, y=Population, fill=Race
 print(Race_Plot)
 ```
 
-```{r Figure 3.8, fig.cap="Figure 3.8 Annualized Frequency of Coastal Flooding by Census Tract.", echo=FALSE}
+Figure 3.7 Racial Composition of Each Census Tract.
+
+```{r Figure 3.8, echo=FALSE}
 carteret.flooding$TRACT <- as.factor(carteret.flooding$TRACT)
 
 Flooding_Plot <- ggplot(carteret.flooding, aes(x = TRACT, y = CFLD_AFREQ)) +
@@ -214,7 +216,9 @@ Flooding_Plot <- ggplot(carteret.flooding, aes(x = TRACT, y = CFLD_AFREQ)) +
 print(Flooding_Plot)
 ```
 
-```{r Figure 3.9, fig.cap="Figure 3.9 Annualized Frequency of Hurricanes by Census Tract.", echo=FALSE}
+Figure 3.8 Annualized Frequency of Coastal Flooding by Census Tract.
+
+```{r Figure 3.9, echo=FALSE}
 Carteret_Hurricanes$TRACT <- as.factor(Carteret_Hurricanes$TRACT)
 
 Hurricanes_Plot <- ggplot(Carteret_Hurricanes, aes(x = TRACT, y = HRCN_AFREQ)) +
@@ -226,9 +230,12 @@ Hurricanes_Plot <- ggplot(Carteret_Hurricanes, aes(x = TRACT, y = HRCN_AFREQ)) +
 print(Hurricanes_Plot)
 ```
 
+Figure 3.9 Annualized Frequency of Hurricanes by Census Tract.
+
 ```{r Figure 3.9.1 max flooding, echo=FALSE}
 mapview(carteret.combined.maxflood.shape, zcol = "AnnlzFF", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Areas of Maximum Annualized Flooding In Cartert County", label = carteret.combined.maxflood.shape$NAMELSA, zoom=12) 
 ```
+
 Figure 3.9.1 Areas of Maximum Annualized Flooding in Carteret County.
 
 ```{r min flooding calc, include=FALSE}
@@ -313,7 +320,7 @@ of coastal flooding and annualized frequency of hurricanes:
 ## 4.1 Coastal Flooding Analysis
 
 The results from the coastal flooding correlation tests are as follows:
-```{r creating min hurricane map, include=FALSE}
+```{r Table 4.1, echo=FALSE}
 Name3 <- c("% Pop White","% Pop Black or African American","% Pop Asian","% Pop American Indian and Alaska Native","% Pop Cherokee Tribal Grouping","% Pop Sioux Tribal Grouping","% Pop Labor Force 16 Years or Over","% Pop Employed","% Pop Employed Males","% Pop Employed Females","% Pop Unemployed","% Pop Unemployed Males","% Pop Unemployed Females","% Pop Aged 25 and Over and Below Poverty Line","% Pop Education Less than High School Graduate and Below Poverty Line","% Pop Education Level High School Graduate and Below Poverty Line","% Pop Education Level Some College or Associates Degree Below Poverty Line","% Pop Education Level Bachelors Degree or Higher Below Poverty Line","% Pop Below Poverty Line","% Pop Age Under 18 Below Poverty Line","% Pop Age 18 - 64 Below Poverty Line","% Pop Age 65 and Over Below Poverty Line")
 pvalue <- c("0.9076","0.3664","0.5262","0.3822","0.6958","0.9795","0.4844","0.5044","0.4751","0.5998","0.7927","0.6928","0.5897","0.3234","0.8087","0.7099","0.1064","0.7212","0.3677","0.7199","0.5306","0.01493")
 signif <- c("No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No", "No","**YES**")
@@ -328,7 +335,7 @@ Table 4.1.1 Results of Annualized Flooding Frequency Correlation Tests
 
 The only demographic variable with a significant result (a p-value of less than 0.05) is percent of population over 65 years old and below the poverty line. The P-value for this correlation test is 0.01493. The test resulted in a negative correlation, meaning that the more people over 65 that are below the poverty line, the less likely the census tract has a higher Annualized Flooding Frequency. Figure 4.1.1 below depicts the percent of population over 65 years old and below the poverty line by census tract. 
 
-```{r Figure4.1.1, echo=FALSE}
+```{r Figure 4.1.1, echo=FALSE}
 #Population over 65 & Below Poverty Line Map
 mapview(carteret.combined.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.shape$NAMELSA)
 ```
@@ -382,7 +389,6 @@ cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`
 
 #significant results (p<0.05): `65overbelowpovertyline`
 #Other small p-values (p<0.2): PopulationbelowPovertyLine, Somecollegeassociatesdegreebelowpovertyline, `25over&belowpovertyline`, EmployedMale, LaborForce16YearsandOver
-
 ```
 
 ```{r Figure4.1.2, echo=FALSE}
@@ -417,31 +423,17 @@ colnames(carteret.combined.hurricane.shape) <- c("TRACTCE","DataType","Annualize
 ```
 ## 4.2 Hurricane Analysis
 The results from the hurricane correlation tests are as follows:
+```{r Table 4.2, echo=FALSE}
+Name3 <- c("% Pop White","% Pop Black or African American","% Pop Asian","% Pop American Indian and Alaska Native","% Pop Cherokee Tribal Grouping","% Pop Sioux Tribal Grouping","% Pop Labor Force 16 Years or Over","% Pop Employed","% Pop Employed Males","% Pop Employed Females","% Pop Unemployed","% Pop Unemployed Males","% Pop Unemployed Females","% Pop Aged 25 and Over and Below Poverty Line","% Pop Education Less than High School Graduate and Below Poverty Line","% Pop Education Level High School Graduate and Below Poverty Line","% Pop Education Level Some College or Associates Degree Below Poverty Line","% Pop Education Level Bachelors Degree or Higher Below Poverty Line","% Pop Below Poverty Line","% Pop Age Under 18 Below Poverty Line","% Pop Age 18 - 64 Below Poverty Line","% Pop Age 65 and Over Below Poverty Line")
+pvalue2 <- c("0.5813","0.55","0.1832","0.684","0.8256","0.5146","0.2241","0.1578","0.171","0.3015","0.8848","0.7252","0.5489","0.1934","0.26","0.4258","0.1057","0.7494","0.1507","0.1055","0.2765","0.3127")
+signif2 <- c("No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No", "No","No")
+datast4 <- data.frame(Name3, pvalue2,signif2)
+colnames(datast4) <- c("Demographic Variable", "P-Value", "Significant?")
+datast4 %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+```
 
-Demographic Variable | P-Value       | Significant?  |
-------------------- | ------------- :| ------------ :|
-% Pop White         | 0.5813         | No            |
-% Pop Black or African American | 0.55 | No |
-% Pop Asian | 0.1832 | No |
-% Pop American Indian and Alaska Native | 0.684 | No |
-% Pop Cherokee Tribal Grouping | 0.8256 | No |
-% Pop Sioux Tribal Grouping | 0.5146 | No |
-% Pop Labor Force 16 Years or Over | 0.2241 | No |
-% Pop Employed | 0.1578 | No |
-% Pop Employed Males | 0.171 | No |
-% Pop Employed Females | 0.3015 | No |
-% Pop Unemployed | 0.8848 | No |
-% Pop Unemployed Males | 0.7252 | No |
-% Pop Unemployed Females | 0.5489 | No |
-% Pop Aged 25 and Over and Below Poverty Line | 0.1934 | No |
-% Pop Education Less than High School Graduate and Below Poverty Line | 0.26 | No |
-% Pop Education Level High School Graduate and Below Poverty Line | 0.4258 | No |
-% Pop Education Level Some College or Associates Degree Below Poverty Line | 0.1057 | No |
-% Pop Education Level Bachelors Degree or Higher Below Poverty Line | 0.7494 | No |
-% Pop Below Poverty Line | 0.1507 | No |
-% Pop Age Under 18 Below Poverty Line | 0.1055 | No |
-% Pop Age 18 - 64 Below Poverty Line | 0.2765 | No |
-% Pop Age 65 and Over Below Poverty Line | 0.3127 | No |
 Table 4.2.1 Results of Annualized Hurricane Frequency Correlation Tests
 
 No demographic variables have a significant (p-value of less than 0.05) correlation with annualized hurricane frequency. The smallest p-values resulted from the tests with percent of population under age 18 below the poverty line, percent of population with some college below the poverty line, and percent of population below the poverty line. These all have slightly negative correlations. This means as these demographic factors increase in a given census tract, the less likely that tract is to have a higher Annualized Hurricane Frequency. 
