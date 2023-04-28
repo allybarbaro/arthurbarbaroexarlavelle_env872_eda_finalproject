@@ -31,6 +31,18 @@ This repository contains the folders Code, Data, and Output. The Data folder con
 
 ## Metadata
 
+Raw Data:
+
+Carteret_tracts:
+ACS_education:
+ACSDP5Y2021.DP05-race-age-sex:
+ACSST5Y2021.poverty:
+ACSST5Y2021.S1501-2023-04-20T120427: 
+NRI_Table_CensusTracts_NorthCarolina:
+
+Processed Data:
+
+
 <For each data file in the repository, describe the data contained in each column. Include the column name, a description of the information, the class of data, and any units associated with the data. Create a list or table for each data file.> 
 
 ## Scripts and code
@@ -43,8 +55,6 @@ Analysis Code:
 - graph_creation_code: code for creation of all charts and graphs in analysis. 
 - correlation_tests_code: code for statistical analysis and data visualizations.
 - final_product_visualization_test: code for testing the knitting process and layout of final report.
-
-<list any software scripts/code contained in the repository and a description of their purpose.>
 
 ## Quality assurance/quality control
 
