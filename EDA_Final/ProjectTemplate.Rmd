@@ -4,25 +4,25 @@ subtitle: "https://github.com/allybarbaro/arthurbarbaroexarlavelle_env872_eda_fi
 author: "Maeve Arthur, Allison Barbaro, Laura Exar and Aileen Lavelle"
 date: "2023-05-01"
 output: 
-  html_document:
+  bookdown::html_document2:
+    df_print: paged
     toc: true
     toc_depth: 2
+    fig_caption: yes
 ---
-```{r  More setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 # 0.1 List of Tables
 *Dataset Information*
 
-- Table 2.1 \@ref(tab:table1): Structure of Demographic Data
+- Table 2.1 \@ref(tab:Table2.1): Structure of Demographic Data
 
-- Table 2.2 Structure of Flooding and Hurricane Data 
+- Table 2.2 \@ref(tab:Table2.2): Structure of Flooding and Hurricane Data 
 
 *Analysis*
 
-- Table 4.1.1 Results of Annualized Flooding Frequency Correlation Tests
+- Table 4.1.1 \@ref(fig:Figure4.1.1): Results of Annualized Flooding Frequency Correlation Tests
 
-- Table 4.2.1 Results of Annualized Hurricane Frequency Correlation Tests
+- Table 4.2.1 \@ref(fig:Figure4.2.1): Results of Annualized Hurricane Frequency Correlation Tests
 
 \newpage
 
@@ -132,8 +132,7 @@ The coastal flooding and hurricane data from FEMA's National Risk Index (NRI) da
 
 The FEMA NRI data was acquired in csv format at the census tract level for the entire state of North Carolina. This csv contained information on all types of natural hazards. This data was filtered to contain only census tracts within Carteret county and only annualized frequency of hurricanes and coastal flooding.
 
-Table 2.1 Structure of Demographic Data
-```{r table1, echo=FALSE}
+```{r Table2.1, fig.cap = "Table 2.1 Structure of Demographic Data", echo=FALSE}
 Name <- c("Tract Number", "Tract Number")
 Description <- c("Percent of Population in tract", "Percent of Population in tract")
 datast <- data.frame(Name, Description)
@@ -144,13 +143,15 @@ kbl() %>%
   kable_styling()
 ```
 
-Table 2.2 Structure of Flooding and Hurricane Data
-
-| Census Tract | Hazard Annualized Frequency      |
-|--------------|----------------------------------:|
-| Tract Number | Probability of Hazard Occurrence |
-| Tract Number | Probability of Hazard Occurrence |
-
+```{r Table2.2, fig.cap = "Table 2.2 Structure of Flooding and Hurricane Data", echo=FALSE}
+Name2 <- c("Tract Number", "Tract Number")
+Description2 <- c("Probability of Hazard Occurrence", "Probability of Hazard Occurrence")
+datast2 <- data.frame(Name, Description)
+colnames(datast2) <- c("Census Tract", "Hazard Annualized Frequency")
+datast2 %>%
+kbl() %>%
+  kable_styling()
+```
 \newpage
 
 # 3. Exploratory Analysis
@@ -340,7 +341,7 @@ Table 4.1.1 Results of Annualized Flooding Frequency Correlation Tests
 
 The only demographic variable with a significant result (a p-value of less than 0.05) is percent of population over 65 years old and below the poverty line. The P-value for this correlation test is 0.01493. The test resulted in a negative correlation, meaning that the more people over 65 that are below the poverty line, the less likely the census tract has a higher Annualized Flooding Frequency. Figure 4.1.1 below depicts the percent of population over 65 years old and below the poverty line by census tract. 
 
-```{r Figure 4.1.1, echo=FALSE}
+```{r Figure4.1.1, echo=FALSE}
 #Population over 65 & Below Poverty Line Map
 mapview(carteret.combined.shape, zcol = "X6.o.bpl", col.regions = c(paletteer_c("grDevices::Zissou 1", 30)), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.shape$NAMELSA)
 ```
@@ -397,7 +398,7 @@ cor.test(combined.demographics$AnnualizedFloodFrequency, combined.demographics$`
 
 ```
 
-```{r Figure 4.1.2, echo=FALSE}
+```{r Figure4.1.2, echo=FALSE}
 #Population over 65 & Below Poverty Line & Max Flooding Map
 mapview(carteret.combined.maxflood.shape, zcol = "X6_o_bpl", col.regions = c(paletteer_d("ggthemes::Nuriel_Stone")), layer.name = "Percent of Carteret County Population Over 65 and Below Poverty Line", label = carteret.combined.maxflood.shape$NAMELSA)
 ```
