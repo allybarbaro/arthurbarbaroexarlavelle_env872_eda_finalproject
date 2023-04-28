@@ -14,15 +14,15 @@ output:
 # 0.1 List of Tables
 *Dataset Information*
 
-- Table 2.1 \@ref(tab:Table2.1): Structure of Demographic Data
+- Table 2.1: Structure of Demographic Data
 
-- Table 2.2 \@ref(tab:Table2.2): Structure of Flooding and Hurricane Data 
+- Table 2.2: Structure of Flooding and Hurricane Data 
 
 *Analysis*
 
-- Table 4.1.1 \@ref(fig:Figure4.1.1): Results of Annualized Flooding Frequency Correlation Tests
+- Table 4.1.1: Results of Annualized Flooding Frequency Correlation Tests
 
-- Table 4.2.1 \@ref(fig:Figure4.2.1): Results of Annualized Hurricane Frequency Correlation Tests
+- Table 4.2.1: Results of Annualized Hurricane Frequency Correlation Tests
 
 \newpage
 
@@ -132,7 +132,7 @@ The coastal flooding and hurricane data from FEMA's National Risk Index (NRI) da
 
 The FEMA NRI data was acquired in csv format at the census tract level for the entire state of North Carolina. This csv contained information on all types of natural hazards. This data was filtered to contain only census tracts within Carteret county and only annualized frequency of hurricanes and coastal flooding.
 
-```{r Table2.1, fig.cap = "Table 2.1 Structure of Demographic Data", echo=FALSE}
+```{r Table 2.1, fig.cap = "Table 2.1 Structure of Demographic Data", echo=FALSE}
 Name <- c("Tract Number", "Tract Number")
 Description <- c("Percent of Population in tract", "Percent of Population in tract")
 datast <- data.frame(Name, Description)
@@ -143,7 +143,7 @@ kbl() %>%
   kable_styling()
 ```
 
-```{r Table2.2, fig.cap = "Table 2.2 Structure of Flooding and Hurricane Data", echo=FALSE}
+```{r Table 2.2, fig.cap = "Table 2.2 Structure of Flooding and Hurricane Data", echo=FALSE}
 Name2 <- c("Tract Number", "Tract Number")
 Description2 <- c("Probability of Hazard Occurrence", "Probability of Hazard Occurrence")
 datast2 <- data.frame(Name, Description)
@@ -311,32 +311,19 @@ of coastal flooding and annualized frequency of hurricanes:
   + Percent of population, Age 65 and Over Below Poverty Line 
 
 ## 4.1 Coastal Flooding Analysis
-The results from the coastal flooding correlation tests are as follows:
 
-Demographic Variable.          | P-Value         | Significant?  |
-------------------------------- | ------------- :| ------------ :|
-% Pop White                     | 0.9076         | No            |
-% Pop Black or African American | 0.3664         | No            |
-% Pop Asian                     | 0.5262         | No            |
-% Pop American Indian and Alaska Native | 0.3822 | No |
-% Pop Cherokee Tribal Grouping | 0.6958 | No |
-% Pop Sioux Tribal Grouping | 0.9795 | No |
-% Pop Labor Force 16 Years or Over | 0.4844 | No |
-% Pop Employed | 0.5044 | No |
-% Pop Employed Males | 0.4751 | No |
-% Pop Employed Females | 0.5998 | No |
-% Pop Unemployed | 0.7927 | No |
-% Pop Unemployed Males | 0.6928 | No |
-% Pop Unemployed Females | 0.5897 | No |
-% Pop Aged 25 and Over and Below Poverty Line | 0.3234 | No |
-% Pop Education Less than High School Graduate and Below Poverty Line | 0.8087 | No |
-% Pop Education Level High School Graduate and Below Poverty Line | 0.7099 | No |
-% Pop Education Level Some College or Associates Degree Below Poverty Line | 0.1064 | No |
-% Pop Education Level Bachelors Degree or Higher Below Poverty Line | 0.7212 | No |
-% Pop Below Poverty Line | 0.3677 | No |
-% Pop Age Under 18 Below Poverty Line | 0.7199 | No |
-% Pop Age 18 - 64 Below Poverty Line | 0.5306 | No |
-% Pop Age 65 and Over Below Poverty Line | 0.01493 | **YES** |
+The results from the coastal flooding correlation tests are as follows:
+```{r creating min hurricane map, include=FALSE}
+Name3 <- c("% Pop White","% Pop Black or African American","% Pop Asian","% Pop American Indian and Alaska Native","% Pop Cherokee Tribal Grouping","% Pop Sioux Tribal Grouping","% Pop Labor Force 16 Years or Over","% Pop Employed","% Pop Employed Males","% Pop Employed Females","% Pop Unemployed","% Pop Unemployed Males","% Pop Unemployed Females","% Pop Aged 25 and Over and Below Poverty Line","% Pop Education Less than High School Graduate and Below Poverty Line","% Pop Education Level High School Graduate and Below Poverty Line","% Pop Education Level Some College or Associates Degree Below Poverty Line","% Pop Education Level Bachelors Degree or Higher Below Poverty Line","% Pop Below Poverty Line","% Pop Age Under 18 Below Poverty Line","% Pop Age 18 - 64 Below Poverty Line","% Pop Age 65 and Over Below Poverty Line")
+pvalue <- c("0.9076","0.3664","0.5262","0.3822","0.6958","0.9795","0.4844","0.5044","0.4751","0.5998","0.7927","0.6928","0.5897","0.3234","0.8087","0.7099","0.1064","0.7212","0.3677","0.7199","0.5306","0.01493")
+signif <- c("No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No","No", "No","**YES**")
+datast3 <- data.frame(Name3, pvalue,signif)
+colnames(datast3) <- c("Demographic Variable", "P-Value", "Significant?")
+datast3 %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+```
+
 Table 4.1.1 Results of Annualized Flooding Frequency Correlation Tests
 
 The only demographic variable with a significant result (a p-value of less than 0.05) is percent of population over 65 years old and below the poverty line. The P-value for this correlation test is 0.01493. The test resulted in a negative correlation, meaning that the more people over 65 that are below the poverty line, the less likely the census tract has a higher Annualized Flooding Frequency. Figure 4.1.1 below depicts the percent of population over 65 years old and below the poverty line by census tract. 
