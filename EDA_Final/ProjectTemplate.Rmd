@@ -111,11 +111,11 @@ carteret.combined.minhurricane.shape <- st_read(here("./Data/Processed/carteret.
 
 Carteret County is a coastal county in North Carolina with a population of around 69,000 and an area of over 500 square miles. This area is characterized by low-lying wetlands, agricultural fields, beach towns, and thin barrier islands. Carteret, like all coastal counties in North Carolina, is subject to frequent coastal flooding and hurricanes. According to the county government, 33% of the county's population lives within a FEMA-designated Special Flood Hazard Area (SFHA). 39% of all road miles, and 24% of all "critical facilities" are located within the SFHA.
 
-This analysis aimed to examine the correlation between coastal flooding and hurricane events and different demographic characteristics of Carteret county residents. In the United States environmental injustices are often highlighted by natural disaster events, as under-served and under-resourced communities are impacted at higher rates than wealthier, whiter communities. This analysis used US Census Data from the 2021 American Community Survey (ACS) in order to examine a wide range of demographic data for Carteret County at the census tract level. Coastal flooding and hurricane data was obtained from a FEMA National Risk Index dataset. These datasets will be discussed further in the following section of this report.
+This analysis aimed to examine the correlation between coastal flooding and hurricane events and different demographic characteristics of Carteret County residents. In the United States environmental injustices are often highlighted by natural disaster events, as under-served and under-resourced communities are impacted at higher rates than wealthier, whiter communities. This analysis used US Census Data from the 2021 American Community Survey (ACS) in order to examine a wide range of demographic data for Carteret County at the census tract level. Coastal flooding and hurricane data was obtained from a FEMA National Risk Index dataset. These datasets will be discussed further in the following section of this report.
 
 ### Research Questions
 
-In order to investigate the impact of coastal flooding and hurricanes on different communities in Carteret county, this analysis focused on four central research questions:
+In order to investigate the impact of coastal flooding and hurricanes on different communities in Carteret County, this analysis focused on two central research questions:
 
 1.  Which set of demographic factors are correlated with annualized flooding frequency?
 2.  Which set of demographic factors are correlated with annualized hurricane frequency?
@@ -124,13 +124,13 @@ In order to investigate the impact of coastal flooding and hurricanes on differe
 
 # 2. Dataset Information
 
-All demographic data for this analysis is US Census data from the American Community Survey 2021 5-year estimates. The ACS 5-year estimates represent data collected over a period of time, and are best used for less-populated geographies. Individual datasets for each demographic variable of interest were downloaded in csv format for Carteret county at the census tract level. Chosen variables of interest were: race, educational attainment, age, sex, poverty status, and employment status. These datasets contained totals and percentages for each demographic category by census tract. For example, the race dataset contained estimates of total population of each racial group recorded in the ACS, and percent of total population represented in this group by census tract.
+All demographic data for this analysis is US Census data from the American Community Survey 2021 5-year estimates. The ACS 5-year estimates represent data collected over a period of time, and are best used for less-populated geographies. Individual datasets for each demographic variable of interest were downloaded in .csv format for Carteret County at the census tract level. Chosen variables of interest were: race, educational attainment, age, sex, poverty status, and employment status. These datasets contained totals and percentages for each demographic category by census tract. For example, the race dataset contained estimates of total population of each racial group recorded in the ACS, and percent of total population represented in this group by census tract.
 
 Each demographic dataset was wrangled in order to be legible and easily analyzed. Unnecessary columns and rows were deleted, columns and rows were renamed, and total estimates and percentages for each characteristic were separated into two distinct datasets. The separation of percentages and totals allowed for straightforward data visualizations.
 
-The coastal flooding and hurricane data from FEMA's National Risk Index (NRI) data set. The NRI contains data on 18 different natural hazards. This dataset was selected due to the presence of annualized frequency by natural hazard. Annualized frequency refers to the probability of a hazard instance per year.
+The coastal flooding and hurricane data from FEMA's National Risk Index (NRI) dataset. The NRI contains data on 18 different natural hazards. This dataset was selected due to the presence of annualized frequency by natural hazard. Annualized frequency refers to the probability of a hazard instance per year.
 
-The FEMA NRI data was acquired in csv format at the census tract level for the entire state of North Carolina. This csv contained information on all types of natural hazards. This data was filtered to contain only census tracts within Carteret county and only annualized frequency of hurricanes and coastal flooding.
+The FEMA NRI data was acquired in .csv format at the census tract level for the entire state of North Carolina. This .csv contained information on all types of natural hazards. This data was filtered to contain only census tracts within Carteret County and only annualized frequency of hurricanes and coastal flooding.
 
 ```{r Table 2.1, fig.cap = "Table 2.1 Structure of Demographic Data", echo=FALSE}
 Name <- c("Tract Number", "Tract Number")
@@ -156,7 +156,7 @@ kbl() %>%
 
 # 3. Exploratory Analysis
 
-The exploratory analysis of the data involved visualizing the racial demographic data spatially and graphing the hazard data by census tract. These maps depict different racial groups at the census tract level. The study area is shown in Figure 3.1 below. All census tracts within Carteret county are highlighted in Figure 3.2 below. Figure 3.3 illustrates percent of white population by census tract, while Figure 3.4 shows the same for Black and African American population, Figure 3.5 for American Indian and Alaskan Native, and Figure 3.6 for Asian population. Figure 3.7 is a graph representing the racial makeup of each census tract. Figure 3.8 details the annualized frequency of coastal flooding for each census tract, while Figure 3.9 shows the annualized frequency of hurricanes by census tract. These initial maps and plots set the stage for our later analysis. Figures 3.9.1 and 3.9.2 provide the census tracts with the maximum and minimum annualized flooding. **Should I say a sentence about why we only map racial categories here and not other demo variables? or it doesn't matter?**
+The exploratory analysis of the data involved visualizing the racial demographic data spatially and graphing the hazard data by census tract. These maps depict different racial groups at the census tract level. The study area is shown in Figure 3.1 below. All census tracts within Carteret County are highlighted in Figure 3.2 below. Figure 3.3 illustrates percent of white population by census tract, while Figure 3.4 shows the same for Black and African American population, Figure 3.5 for American Indian and Alaskan Native, and Figure 3.6 for Asian population. Figure 3.7 is a graph representing the racial makeup of each census tract. Figure 3.8 details the annualized frequency of coastal flooding for each census tract, while Figure 3.9 shows the annualized frequency of hurricanes by census tract. These initial maps and plots set the stage for our later analysis. Figures 3.9.1 and 3.9.2 provide the census tracts with the maximum and minimum annualized flooding. 
 
 ```{r Figure 3.1, fig.cap= "Map of Carteret County by census tract.", echo=FALSE}
 m1 <- mapview(carteret.shape, zcol = "NAMELSAD", color = 'black', alpha.regions = 0, layer.name = "Census Tract Name", legend = FALSE, label = "NAMELSAD")
@@ -333,7 +333,7 @@ datast3 %>%
 
 Table 4.1.1 Results of Annualized Flooding Frequency Correlation Tests
 
-The only demographic variable with a significant result (a p-value of less than 0.05) is percent of population over 65 years old and below the poverty line. The P-value for this correlation test is 0.01493. The test resulted in a negative correlation, meaning that the more people over 65 that are below the poverty line, the less likely the census tract has a higher Annualized Flooding Frequency. Figure 4.1.1 below depicts the percent of population over 65 years old and below the poverty line by census tract. 
+The only demographic variable with a significant result (a p-value of less than 0.05) is percent of population over 65 years old and below the poverty line. The p-value for this correlation test is 0.01493. The test resulted in a negative correlation, meaning that the more people over 65 that are below the poverty line, the less likely the census tract has a higher Annualized Flooding Frequency. Figure 4.1.1 below depicts the percent of population over 65 years old and below the poverty line by census tract. 
 
 ```{r Figure 4.1.1, echo=FALSE}
 #Population over 65 & Below Poverty Line Map
@@ -397,7 +397,7 @@ mapview(carteret.combined.maxflood.shape, zcol = "X6_o_bpl", col.regions = c(pal
 ```
 Figure 4.1.2 Map of % of population over 65 years old below poverty line in areas of maximum flooding.
 
-Demographic variables with insignificant, yet relatively small p-values are percent of population below poverty line, percent of population with some college or an associates degree below the poverty line, and percent of population over the age of 25 below the poverty line. Figures 4.1.3 through 4.1.5 map these demographic variables by census tract in Carteret county. Percent of population below poverty line, percent of population 25 and over below poverty line, and percent of population with some college below the poverty line all have slightly negative correlations. This means as these demographic factors increase in a given census tract, the less likely that tract is to have a higher Annualized Flooding Frequency. 
+Demographic variables with insignificant, yet relatively small p-values are percent of population below poverty line, percent of population with some college or an associates degree below the poverty line, and percent of population over the age of 25 below the poverty line. Figures 4.1.3 through 4.1.5 map these demographic variables by census tract in Carteret County. Percent of population below poverty line, percent of population 25 and over below poverty line, and percent of population with some college below the poverty line all have slightly negative correlations. This means as these demographic factors increase in a given census tract, the less likely that tract is to have a higher Annualized Flooding Frequency. 
 
 ```{r Figure 4.1.3, echo=FALSE}
 #Population Below Poverty Line Map
@@ -509,7 +509,7 @@ Figure 4.2.3 Map of % of population below poverty line in Carteret County.
 # 5. Summary and Conclusions
 The only significant correlation in this analysis to either hazard in Carteret county is the negative correlation of percent of population above age 65 and below the poverty line to annualized frequency of coastal flooding.
 
-The overall results suggest that demographic characteristics do not relate to the spatial distribution of coastal flooding and hurricanes in Carteret county. While other environmental justice issues could be present in the county, this analysis suggests that different racial and socioeconomic groups are not more or less subject to coastal flooding and hurricanes.
+The overall results suggest that demographic characteristics do not relate to the spatial distribution of coastal flooding and hurricanes in Carteret County. While other environmental justice issues could be present in the county, this analysis suggests that different racial and socioeconomic groups are not more or less subject to coastal flooding and hurricanes.
 
 Future research could use these analysis methods on urban counties subject to coastal flooding and hurricanes, such as Kings County in New York. Denser overall population, higher populations of different racial groups, and an urban coastal geography could lead to very different results than this analysis of Carteret County. 
 
