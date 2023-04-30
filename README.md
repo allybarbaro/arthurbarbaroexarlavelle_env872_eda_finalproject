@@ -41,9 +41,48 @@ ACSST5Y2021.S1501-2023-04-20T120427:
 NRI_Table_CensusTracts_NorthCarolina:
 
 Processed Data:
+Census Data:
+- "Carteret.age.sex.percent.csv"
+- "Carteret.education.percent.belowpoverty.csv"
+- "Carteret.race.percent.csv"
+- "Carteret.age.sex.csv"
+- "Carteret.belowpoverty.csv"
+- "Carteret.education.csv"
+- "Carteret.employment.csv"
+- "Carteret.employment.percent.belowpoverty.csv"
+- "Carteret.poverty.csv"
+- "Carteret.poverty.percent.csv"
+- "Carteret.race.csv"
+- "Carteret.race.percent.csv"
 
+All of the files listed above contain American Community Survey 5 Year Estimates data from 2021 from the US Census. Each file is for Carteret county, NC and is organized by census tract. The title of each spreadsheet alludes to the data contained in further columns. These files contain data on age, sex, race, poverty status, education attainment status, and employment status. The files with "percent" in the name are only percentages of each demographic characteristic by tract. The files without "percent" in the name contain rows of total estimate (# of people) and percentage by census tract. 
 
-<For each data file in the repository, describe the data contained in each column. Include the column name, a description of the information, the class of data, and any units associated with the data. Create a list or table for each data file.> 
+FEMA Data:
+-"Carteret_Flooding_Processed.csv"
+-"Carteret_Hurricanes_Processed.csv"
+
+These files contain hazard data from FEMA for Carteret County, NC. These files contain census tracts and their corresponding annualized frequency of flooding and hurricanes, respectively. 
+
+Spatial Data:
+- "Carteret_county_bytract.csv"
+- "Carteret_tracts.dbf, .prj, .shp, .shx "
+- "Carteretshape.csv"
+
+The files listed above are exclusively spatial data. They contain census tract names, GEOIDs, and geometries. 
+
+- "Carteret.race.percent.pivot.dbf, .prj, .shp, .shx"
+- "Carteret.combined.hurricane.shape.corrected.actually.dbf, .prj, .shp, .shx"
+- "Carteret.combined.maxflood.shape.dbf, .prj, .shp, .shx"
+- "Carteret.combined.maxhurricane.shape.dbf, .prj, .shp, .shx"
+- "Carteret.combined.min3flood.shape.dbf, .prj, .shp, .shx"
+- "Carteret.combined.shape.dbf, .prj, .shp, .shx"
+- "Flooding.race.correct.dbf, .prj, .shp, .shx"
+- "Maxfloodingcorrect.dbf, .prj, .shp, .shx"
+- "Minfloodingcorrect.dbf, .prj, .shp, .shx"
+- "Shape.flooding.race.dbf, .prj, .shp, .shx"
+
+The files listed above contain census tract names, GEOIDs, geometries and FEMA and Census data. These files allowed us to spatially visualize and map our data. "Carteret.race.percent.pivot" contains spatial data and percentages of each race/ethnicity by tract. All files with the word "combined" in the name contain both spatial data for each tract as well as the different demographic or FEMA hazard data indicated in the file name. The files with "maxflood" and "maxhurricane", as well as "min3flood" contain hazard, demographic and spatial data for the 3 census tracts with the maximum or minimum annualized frequency of the hazard contained in the file name.
+
 
 ## Scripts and code
 Wrangling Code:
